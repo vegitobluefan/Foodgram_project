@@ -1,4 +1,4 @@
-from recipes.views import Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework import serializers
 
 

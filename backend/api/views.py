@@ -25,7 +25,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet для модели Recipe."""
 
-    queryset = Recipe.objects.select_related("author")
+    queryset = Recipe.objects.select_related('author')
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly)
     pagination_class = CustomHomePagination

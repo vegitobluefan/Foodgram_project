@@ -5,14 +5,18 @@ from .models import Recipe, User
 
 
 class RecipeForm(forms.ModelForm):
+    """Форма для модели Recipe."""
 
     class Meta:
         model = Recipe
-        fields = ('__all__')
+        fields = (
+            'author', 'name', 'image', 'text',
+            'tags', 'ingredients', 'cooking_time',
+        )
 
 
 class UserForm(UserChangeForm):
-    """User editing form."""
+    """Форма редактирования пользователя."""
 
     class Meta:
         model = User

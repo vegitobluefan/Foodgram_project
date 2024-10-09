@@ -1,23 +1,10 @@
-from django import forms
-from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 
-from .models import Recipe, User
-
-
-class RecipeForm(forms.ModelForm):
-    """Форма для модели Recipe."""
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'author', 'name', 'image', 'text',
-            'tags', 'ingredients', 'cooking_time',
-        )
+User = get_user_model()
 
 
-class UserForm(UserChangeForm):
-    """Форма редактирования пользователя."""
-
+class CreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email',)
+        fields = ('first_name', 'last_name', 'username', 'email')

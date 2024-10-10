@@ -4,7 +4,6 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = 'django-insecure-sp6#67oxz(-s))uqd3@6b6c4)5swk30u+j)t2n549h!^0p!1ni'
 
 DEBUG = True
@@ -120,3 +119,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'recipes.User'
+
+# Константы типа int
+
+

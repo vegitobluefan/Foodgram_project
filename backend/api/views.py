@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from recipes.models import Ingredient, Recipe, Tag, User
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 

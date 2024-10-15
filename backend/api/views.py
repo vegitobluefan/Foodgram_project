@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 
 from recipes.models import Ingredient, Recipe, Tag
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
@@ -27,5 +27,5 @@ class RecipeViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Recipe.objects.select_related('author')
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly)
+    permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination

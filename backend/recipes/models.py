@@ -83,7 +83,7 @@ class Ingredient(models.Model):
         ordering = ('name',)
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class Recipe(models.Model):
@@ -136,4 +136,4 @@ class Recipe(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self) -> str:
-        return self.title
+        return self.name

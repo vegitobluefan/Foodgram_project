@@ -1,3 +1,5 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from recipes.models import Ingredient, Recipe, Tag, User, models
 from rest_framework import serializers, validators
@@ -43,6 +45,22 @@ class MyUserCreateSerializer(UserCreateSerializer):
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password',
         )
+
+
+class UserAccessTokenSerializer(serializers.Serializer):
+    """Сериализатор для получения токена."""
+
+    username = serializers.CharField(required=True, max_length=52)
+    confirmation_code = serializers.CharField(required=True)
+
+    def validate(self, data):
+        user = get_object_or_404(User, username=data['username'])
+        if not default_token_generator.check_token(
+            user, data['confirmation_code']
+        ):
+            raise serializers.ValidationError(
+                {'confirmation_code': 'Неверный код подтверждения'})
+        return data
 
 
 class IngredientSerializer(serializers.ModelSerializer):

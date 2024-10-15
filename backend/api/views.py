@@ -1,9 +1,9 @@
-from rest_framework import viewsets, permissions
-
 from recipes.models import Ingredient, Recipe, Tag
+from rest_framework import viewsets
+
+from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
-from .paginators import CustomHomePagination
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

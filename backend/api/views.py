@@ -1,12 +1,12 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Ingredient, Recipe, Tag, User
-from rest_framework import permissions, status, viewsets
+from rest_framework import authentication, permissions, status, views, viewsets
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken
 
 from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
@@ -94,14 +94,20 @@ def registration(request):
     )
 
 
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny,])
-def get_token(request):
-    """Функция для получения токена"""
+class AuthView(views.APIView):
+    """Класс для получения токена"""
 
-    serializer = UserAccessTokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data["username"]
-    user = get_object_or_404(User, username=username)
-    token = AccessToken.for_user(user)
-    return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    authentication_classes = (authentication.TokenAuthentication,)
+
+    def post(self, request):
+        user = authenticate(
+            email=request.data['email'], password=request.data['password']
+        )
+        if user:
+            token, created = Token.objets.get_or_create(user=user)
+            return Response({'auth_token': token.key})
+        else:
+            return Response(
+                {'error': 'Invalid credentials'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

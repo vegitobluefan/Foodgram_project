@@ -43,6 +43,30 @@ class User(AbstractUser):
         return self.username
 
 
+class SubscriptionUser(models.Model):
+    """Модель подписки пользователей."""
+
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author',
+        verbose_name='Автор',
+    )
+    subscriber = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name='Подписчик',
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self) -> str:
+        return f'{self.subscriber.username} подписчик {self.author.username}.'
+
+
 class Tag(models.Model):
     """Модель для описания тегов."""
 
@@ -94,7 +118,6 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
-        # related_name='recipes',
     )
     name = models.CharField(
         max_length=32,

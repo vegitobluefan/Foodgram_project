@@ -1,23 +1,31 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
-from recipes.models import Ingredient, Recipe, Tag, User, models
+from recipes.models import (Ingredient, Recipe, SubscriptionUser, Tag, User,
+                            models)
 from rest_framework import serializers, validators
-from rest_framework.validators import UniqueTogetherValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name',)
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=('username', 'email')
-            )
-        ]
+        fields = (
+            'id', 'email', 'username',
+            'first_name', 'last_name', 'is_subscribed',
+        )
+
+    def get_subscription(self, obj):
+        request = self.context.get('request')
+        return (
+            request.user.is_authenticated
+            and SubscriptionUser.objects.filter(
+                user=request.user, author=obj
+            ).exists()
+        )
 
 
 class MyUserCreateSerializer(UserCreateSerializer):

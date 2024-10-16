@@ -11,8 +11,7 @@ from rest_framework.response import Response
 from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
 from .serializers import (IngredientSerializer, MyUserCreateSerializer,
-                          RecipeSerializer, TagSerializer,
-                          UserAccessTokenSerializer, UserSerializer)
+                          RecipeSerializer, TagSerializer, UserSerializer)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

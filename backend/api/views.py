@@ -45,14 +45,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = (permissions.IsAuthenticated,)
     filter_backends = DjangoFilterBackend
     lookup_field = 'username'
     search_fields = ['username', ]
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(methods=['patch', 'get'], detail=False,
-            permission_classes=[permissions.IsAuthenticated])
+            permission_classes=[permissions.IsAuthenticated,])
     def me(self, request):
         if request.method == 'GET':
             serializer = UserSerializer(self.request.user)
@@ -65,7 +65,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny])
+@permission_classes([permissions.AllowAny,])
 def registration(request):
     """Функция для регистрации."""
 
@@ -95,7 +95,7 @@ def registration(request):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny])
+@permission_classes([permissions.AllowAny,])
 def get_token(request):
     """Функция для получения токена"""
 

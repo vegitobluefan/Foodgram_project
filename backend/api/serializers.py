@@ -1,8 +1,8 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
-from recipes.models import (Ingredient, Recipe, SubscriptionUser, Tag, User, IngredientRecipe,
-                            models)
+from recipes.models import (Ingredient, IngredientRecipe, Recipe,
+                            SubscriptionUser, Tag, User, models)
 from rest_framework import serializers, validators
 
 
@@ -95,7 +95,6 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount',)
-        
 
 
 class RecipeSerializer(serializers.ModelSerializer):

@@ -30,7 +30,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
 
 
-class RecipeViewSet(viewsets.ReadOnlyModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Recipe."""
 
     queryset = Recipe.objects.select_related('author')

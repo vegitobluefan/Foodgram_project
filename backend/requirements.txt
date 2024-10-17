@@ -9,3 +9,4 @@ webcolors==1.11.1
 psycopg2-binary==2.9.3
 Pillow==9.0.0
 isort==5.13.2
+PyJWT==2.3.0

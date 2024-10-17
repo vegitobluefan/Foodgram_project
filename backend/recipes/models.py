@@ -32,7 +32,6 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         help_text='Введите вашу фамилию',
     )
-    is_subscribed = models.BooleanField(blank=False, default=False)
 
     class Meta(AbstractUser.Meta):
         ordering = ('username',)

@@ -1,7 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
-from recipes.models import (Ingredient, Recipe, SubscriptionUser, Tag, User,
+from recipes.models import (Ingredient, Recipe, SubscriptionUser, Tag, User, IngredientRecipe,
                             models)
 from rest_framework import serializers, validators
 
@@ -79,6 +79,25 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit',)
 
 
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели IngredientRecipe."""
+
+    name = serializers.ReadOnlyField(
+        source='ingredient.name',
+    )
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit',
+    )
+    amount = serializers.ReadOnlyField(
+        source='ingredient.amount',
+    )
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'name', 'measurement_unit', 'amount',)
+        
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Recipe."""
 
@@ -92,6 +111,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Tag."""
+
+    name = serializers.CharField(
+        max_length=52,
+    )
+    slug = serializers.SlugField(
+        max_length=52,
+    )
 
     class Meta:
         model = Tag

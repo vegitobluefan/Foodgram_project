@@ -100,11 +100,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
-
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
@@ -118,10 +113,6 @@ DJOSER = {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
     }
 }
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-DEFAULT_FROM_EMAIL = 'daniararinov995@gmail.com'
 
 LANGUAGE_CODE = 'en-us'
 

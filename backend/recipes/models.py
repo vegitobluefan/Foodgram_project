@@ -32,6 +32,12 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         help_text='Введите вашу фамилию',
     )
+    avatar = models.ImageField(
+        verbose_name='Аватар',
+        upload_to='user_avatars',
+        help_text='Добавьте ваш аватар',
+        blank=True,
+    )
 
     class Meta(AbstractUser.Meta):
         ordering = ('username',)

@@ -1,12 +1,12 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Ingredient, IngredientRecipe, Recipe,
                             SubscriptionUser, Tag, User, models)
 from rest_framework import serializers, validators
 
 
-class UserSerializer(serializers.ModelSerializer):
+class MyUserSerializer(UserSerializer):
     """Сериализатор для пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
@@ -14,9 +14,10 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'username',
+            'id', 'email', 'username', 'avatar',
             'first_name', 'last_name', 'is_subscribed',
         )
+        read_only_fields = ('avatar', 'is_subscribed',)
 
     def get_subscription(self, obj):
         request = self.context.get('request')

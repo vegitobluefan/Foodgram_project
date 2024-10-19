@@ -5,7 +5,7 @@ from django.db import models
 from .validators import validate_username
 
 
-class User(AbstractUser):
+class MyUser(AbstractUser):
     """Модель для описания пользователя."""
 
     email = models.EmailField(
@@ -51,13 +51,13 @@ class SubscriptionUser(models.Model):
     """Модель подписки пользователей."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='author',
         verbose_name='Автор',
     )
     subscriber = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
         verbose_name='Подписчик',

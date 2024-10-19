@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, validators
 
-from .models import SubscriptionUser, User, models
+from .models import SubscriptionUser, MyUser, models
 
 
 class MyUserSerializer(UserSerializer):
@@ -10,14 +10,14 @@ class MyUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = MyUser
         fields = (
             'id', 'email', 'username', 'avatar',
             'first_name', 'last_name', 'is_subscribed',
         )
         read_only_fields = ('avatar', 'is_subscribed',)
 
-    def get_subscription(self, obj):
+    def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return (
             request.user.is_authenticated
@@ -33,7 +33,7 @@ class MyUserCreateSerializer(UserCreateSerializer):
     username = models.CharField(
         validators=[
             validators.UniqueValidator(
-                queryset=User.objects.all(),
+                queryset=MyUser.objects.all(),
                 message='Пользователь с таким никнеймом уже существует!'
             )
         ]
@@ -41,14 +41,14 @@ class MyUserCreateSerializer(UserCreateSerializer):
     email = models.EmailField(
         validators=[
             validators.UniqueValidator(
-                queryset=User.objects.all(),
+                queryset=MyUser.objects.all(),
                 message='Пользователь с такой почтой уже существует!'
             )
         ]
     )
 
     class Meta:
-        model = User
+        model = MyUser
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password',
         )

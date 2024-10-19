@@ -1,6 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from users.models import User
+from users.models import MyUser
 
 
 class Tag(models.Model):
@@ -51,7 +51,7 @@ class Recipe(models.Model):
     """Модель для описания рецептов."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
     )

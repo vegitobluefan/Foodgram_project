@@ -23,8 +23,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
+    'recipes.apps.RecipesConfig',
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -98,7 +99,7 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'SERIALIZERS': {
-        'user': 'api.serializers.MyUserSerializer',
+        'user': 'users.serializers.MyUserSerializer',
     },
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny'],
@@ -124,7 +125,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'recipes.User'
+AUTH_USER_MODEL = 'users.User'
 
 # Константы типа int
 

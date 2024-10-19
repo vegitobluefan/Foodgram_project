@@ -21,10 +21,8 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ['username', ]
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
-    @action(
-            methods=['patch', 'get'], detail=False,
-            permission_classes=[permissions.IsAuthenticated, ]
-        )
+    @action(methods=['patch', 'get'], detail=False,
+            permission_classes=[permissions.IsAuthenticated, ])
     def me(self, request):
         if request.method == 'GET':
             serializer = MyUserSerializer(self.request.user)
@@ -35,21 +33,3 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class AuthView(views.APIView):
-    """Класс для получения токена"""
-
-    authentication_classes = [TokenAuthentication, ]
-
-    def post(self, request):
-        user = authenticate(
-            email=request.data['email'], password=request.data['password']
-        )
-        if user:
-            token, created = Token.objets.get_or_create(user=user)
-            return Response({'auth_token': token.key})
-        return Response(
-            {'error': 'Invalid credentials'},
-            status=status.HTTP_401_UNAUTHORIZED
-        )

@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, validators
 
-from .models import SubscriptionUser, MyUser, models
+from .models import MyUser, SubscriptionUser, models
 
 
 class MyUserSerializer(UserSerializer):

@@ -2,5 +2,6 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class CustomHomePagination(PageNumberPagination):
-    page_size = 6
+    """Пагинация рецептов. 6 штук на старнице."""
+
     page_size_query_param = 'limit'

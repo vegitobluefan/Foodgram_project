@@ -54,19 +54,3 @@ class MyUserCreateSerializer(UserCreateSerializer):
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password',
         )
-
-
-class UserAccessTokenSerializer(serializers.Serializer):
-    """Сериализатор для получения токена."""
-
-    username = serializers.CharField(required=True, max_length=52)
-    confirmation_code = serializers.CharField(required=True)
-
-    def validate(self, data):
-        user = get_object_or_404(User, username=data['username'])
-        if not default_token_generator.check_token(
-            user, data['confirmation_code']
-        ):
-            raise serializers.ValidationError(
-                {'confirmation_code': 'Неверный код подтверждения'})
-        return data

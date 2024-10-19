@@ -31,7 +31,8 @@ services:
       - static:/frontend_static
   
   nginx:
-    image: nginx:1.19.3
+    container_name: foodgram_proxy
+    image: nginx:1.25.4-alpine
     ports:
       - "80:80"
     volumes:

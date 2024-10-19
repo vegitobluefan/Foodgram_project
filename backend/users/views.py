@@ -1,15 +1,13 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, views, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import User
-from .serializers import MyUserCreateSerializer, MyUserSerializer
+from .serializers import MyUserSerializer  # MyUserCreateSerializer,
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -34,36 +32,6 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny, ])
-def registration(request):
-    """Функция для регистрации."""
-
-    user = MyUserCreateSerializer(data=request.data)
-    user.is_valid(raise_exception=True)
-    email = user.data['email']
-    username = user.data['username']
-    data = user.data
-
-    user, created = User.objects.get_or_create(
-        email=email,
-        username=username)
-
-    confirmation_code = default_token_generator.make_token(user)
-
-    send_mail(
-        subject='Confirmation code',
-        message=f"Your code - {confirmation_code}",
-        from_email=None,
-        recipient_list=[email],
-        fail_silently=False
-    )
-    return Response(
-        data,
-        status=status.HTTP_200_OK
-    )
 
 
 class AuthView(views.APIView):

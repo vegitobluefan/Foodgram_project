@@ -2,7 +2,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import authentication, permissions, status, views, viewsets
+from rest_framework import permissions, status, views, viewsets
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -23,7 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(methods=['patch', 'get'], detail=False,
-            permission_classes=[permissions.IsAuthenticated,])
+            permission_classes=[permissions.IsAuthenticated, ])
     def me(self, request):
         if request.method == 'GET':
             serializer = MyUserSerializer(self.request.user)
@@ -36,7 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny,])
+@permission_classes([permissions.AllowAny, ])
 def registration(request):
     """Функция для регистрации."""
 
@@ -68,7 +69,7 @@ def registration(request):
 class AuthView(views.APIView):
     """Класс для получения токена"""
 
-    authentication_classes = (authentication.TokenAuthentication,)
+    authentication_classes = [TokenAuthentication, ]
 
     def post(self, request):
         user = authenticate(
@@ -77,8 +78,7 @@ class AuthView(views.APIView):
         if user:
             token, created = Token.objets.get_or_create(user=user)
             return Response({'auth_token': token.key})
-        else:
-            return Response(
-                {'error': 'Invalid credentials'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+        return Response(
+            {'error': 'Invalid credentials'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )

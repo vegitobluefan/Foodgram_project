@@ -1,4 +1,4 @@
-name: Main foodgram-project-react workflow
+name: Main foodgram workflow
 
 on:
   push:

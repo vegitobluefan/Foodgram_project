@@ -1,13 +1,10 @@
-from django.contrib.auth import authenticate
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, views, viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.models import Token
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import MyUser
-from .serializers import MyUserSerializer  # MyUserCreateSerializer,
+from .serializers import MyUserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

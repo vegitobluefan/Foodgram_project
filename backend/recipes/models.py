@@ -29,12 +29,12 @@ class Ingredient(models.Model):
     """Модель продуктов для приготовления блюда по рецепту."""
 
     name = models.CharField(
-        max_length=32,
+        max_length=128,
         verbose_name='Название',
         unique=True
     )
     measurement_unit = models.CharField(
-        max_length=12,
+        max_length=64,
         verbose_name='Единица измерения',
     )
 
@@ -56,7 +56,7 @@ class Recipe(models.Model):
         verbose_name='Автор рецепта',
     )
     name = models.CharField(
-        max_length=32,
+        max_length=256,
         verbose_name='Название',
     )
     image = models.ImageField(
@@ -65,7 +65,7 @@ class Recipe(models.Model):
         help_text='Добавьте изображение блюда',
     )
     text = models.TextField(
-        max_length=256,
+        max_length=512,
         verbose_name='Описание',
     )
     ingredient = models.ManyToManyField(
@@ -83,7 +83,7 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (мин.)',
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1),
             MaxValueValidator(10000)
         ),
         error_messages={'validators': 'Неподходящее время приготовления'}
@@ -103,6 +103,7 @@ class Recipe(models.Model):
 
 
 class IngredientRecipe(models.Model):
+    """Модель для связи ингредиентов и рецептов."""
 
     ingredient = models.ForeignKey(
         Ingredient,
@@ -141,6 +142,7 @@ class IngredientRecipe(models.Model):
 
 
 class TagRecipe(models.Model):
+    """Модель для связи тегов и рецептов."""
 
     tag = models.ForeignKey(
         Tag,

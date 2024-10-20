@@ -1,5 +1,5 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from users.models import MyUser
 
 
@@ -80,13 +80,8 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Теги блюда',
     )
-    cooking_time = models.PositiveIntegerField(
-        verbose_name='Время приготовления (мин.)',
-        validators=(
-            MinValueValidator(1),
-            MaxValueValidator(10000)
-        ),
-        error_messages={'validators': 'Неподходящее время приготовления'}
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -121,11 +116,6 @@ class IngredientRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         help_text='Укажите количество',
-        validators=[
-            MinValueValidator(
-                1, 'Должен быть хотя бы один ингредиент.'
-            )
-        ]
     )
 
     class Meta:

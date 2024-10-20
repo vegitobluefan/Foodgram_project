@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from .models import MyUser
@@ -12,14 +13,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = MyUserSerializer
     queryset = MyUser.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     filter_backends = DjangoFilterBackend
     lookup_field = 'username'
     search_fields = ['username', ]
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(methods=['patch', 'get'], detail=False,
-            permission_classes=[permissions.IsAuthenticated, ])
+            permission_classes=[IsAuthenticated, ])
     def me(self, request):
         if request.method == 'GET':
             serializer = MyUserSerializer(self.request.user)
@@ -29,4 +30,8 @@ class UserViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role, partial=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def avatar(self, request, pk=None):
+        serializer = MyUserSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)

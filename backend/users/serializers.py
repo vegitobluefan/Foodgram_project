@@ -1,5 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, validators
+from api.serializers import Base64ImageField
 
 from .models import MyUser, SubscriptionUser, models
 
@@ -7,7 +8,14 @@ from .models import MyUser, SubscriptionUser, models
 class MyUserSerializer(UserSerializer):
     """Сериализатор для пользователя."""
 
-    is_subscribed = serializers.SerializerMethodField()
+    image = Base64ImageField(required=False, allow_null=True)
+    is_subscribed = serializers.SerializerMethodField(
+        'get_is_subscribed',
+    )
+    image_url = serializers.SerializerMethodField(
+        'get_image_url',
+        read_only=True,
+    )
 
     class Meta:
         model = MyUser
@@ -25,6 +33,11 @@ class MyUserSerializer(UserSerializer):
                 user=request.user, author=obj
             ).exists()
         )
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class MyUserCreateSerializer(UserCreateSerializer):

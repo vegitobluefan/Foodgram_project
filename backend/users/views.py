@@ -32,6 +32,12 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def avatar(self, request, pk=None):
-        serializer = MyUserSerializer(self.request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    @action(
+        detail=True, methods=['get'], permission_classes=[AllowAny],
+        url_name='avatar'
+    )
+    def avatar(self, request):
+        serializer = MyUserSerializer(request.user)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )

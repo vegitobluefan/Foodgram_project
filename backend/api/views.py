@@ -1,6 +1,5 @@
 from rest_framework import viewsets
 from rest_framework.permissions import SAFE_METHODS
-
 from recipes.models import Ingredient, Recipe, Tag
 
 from .paginators import CustomHomePagination

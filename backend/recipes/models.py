@@ -62,6 +62,7 @@ class Recipe(models.Model):
         verbose_name='Изображение',
         upload_to='recipe_images/',
         help_text='Добавьте изображение блюда',
+        blank=True
     )
     text = models.TextField(
         max_length=512,
@@ -153,3 +154,51 @@ class TagRecipe(models.Model):
 
     def __str__(self) -> str:
         return f'{self.tag} - тег для {self.recipe}.'
+
+
+class FavoriteRecipe(models.Model):
+    """Модель для добавления рецептов в избранное."""
+
+    user = models.ForeignKey(
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='favorite_recipe',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite_recipe',
+        verbose_name='Рецепт в избранное',
+    )
+
+    class Meta:
+        verbose_name = 'Рецепт в избранном'
+        verbose_name_plural = 'рецепты в избранном'
+
+    def __str__(self) -> str:
+        return f'{self.user} добавил {self.recipe} в избранное.'
+
+
+class ShoppingCart(models.Model):
+    """Модель для добавления рецептов в корзину."""
+
+    user = models.ForeignKey(
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='cart_recipe',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='cart_recipe',
+        verbose_name='Рецепт в корзину',
+    )
+
+    class Meta:
+        verbose_name = 'Рецепт в списке покупок'
+        verbose_name_plural = 'рецепты в списке покупок'
+
+    def __str__(self) -> str:
+        return f'{self.user} добавил {self.recipe} в список покупок.'

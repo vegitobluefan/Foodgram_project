@@ -1,11 +1,16 @@
-from recipes.models import Ingredient, Recipe, Tag
-from rest_framework import viewsets
-from rest_framework.permissions import SAFE_METHODS
+from django.shortcuts import get_object_or_404
+from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
-from .serializers import (CreateUpdateRecipeSerializer, IngredientSerializer,
-                          ReadOnlyRecipeSerializer, TagSerializer)
+from .serializers import (CreateUpdateRecipeSerializer,
+                          FavoriteShopListSerializer, IngredientSerializer,
+                          ReadOnlyRecipeSerializer, ShoppingCartSerializer,
+                          TagSerializer)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -36,6 +41,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomHomePagination
 
     def get_serializer_class(self):
-        if self.request.method not in SAFE_METHODS:
+        if self.request.method == 'GET':
             return ReadOnlyRecipeSerializer
         return CreateUpdateRecipeSerializer
+
+    @action(
+        detail=False,
+        url_path=r'(?P<id>\d+)/shopping_cart',
+        methods=['post', 'delete'],
+        serializer_class=ShoppingCartSerializer,
+        permission_classes=(IsAuthenticated,),
+    )
+    def shopping_cart(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
+        favorite = ShoppingCart.objects.filter(
+            recipe=recipe, user=request.user,)
+
+        if request.method == 'POST':
+            if not favorite.exists():
+                ShoppingCart.objects.create(
+                    recipe=recipe, user=request.user,
+                )
+                serializer = FavoriteShopListSerializer(instance=recipe)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'DELETE':
+            if favorite.exists():
+                favorite.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)

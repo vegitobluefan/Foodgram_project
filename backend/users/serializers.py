@@ -22,14 +22,8 @@ class Base64ImageField(serializers.ImageField):
 class MyUserSerializer(UserSerializer):
     """Сериализатор для пользователя."""
 
-    image = Base64ImageField(required=False, allow_null=True)
-    is_subscribed = serializers.SerializerMethodField(
-        'get_is_subscribed',
-    )
-    image_url = serializers.SerializerMethodField(
-        'get_image_url',
-        read_only=True,
-    )
+    avatar = Base64ImageField(required=False, allow_null=True)
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = MyUser
@@ -48,9 +42,9 @@ class MyUserSerializer(UserSerializer):
             ).exists()
         )
 
-    def get_image_url(self, obj):
-        if obj.image:
-            return obj.image.url
+    def get_avatar_url(self, obj):
+        if obj.avatar:
+            return obj.avatar.url
         return None
 
 

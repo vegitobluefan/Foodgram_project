@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
-from recipes.models import Ingredient, IngredientRecipe, Recipe, Tag
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from users.serializers import Base64ImageField, MyUserSerializer
@@ -11,36 +12,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit',)
-
-
-class IngredientRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели IngredientRecipe."""
-
-    name = serializers.ReadOnlyField()
-    measurement_unit = serializers.ReadOnlyField()
-    amount = serializers.ReadOnlyField()
-
-    class Meta:
-        model = IngredientRecipe
-        fields = ('id', 'name', 'measurement_unit', 'amount',)
-
-
-class WriteIngredientRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор работы со связью рецептов и ингредиентов."""
-
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
-    amount = serializers.IntegerField(
-        validators=[
-            MinValueValidator(
-                1, 'Должен быть хотя бы один ингредиент.'
-            )]
-    )
-
-    class Meta:
-        model = IngredientRecipe
-        fields = ('id', 'amount',)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -64,6 +35,35 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'slug',)
+
+
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели IngredientRecipe."""
+
+    name = serializers.ReadOnlyField()
+    measurement_unit = serializers.ReadOnlyField()
+    amount = serializers.ReadOnlyField()
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'name', 'measurement_unit', 'amount',)
+
+
+class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор работы со связью рецептов и ингредиентов."""
+
+    id = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField(
+        required=True,
+        validators=[
+            MinValueValidator(
+                1, 'Должен быть хотя бы один ингредиент.'
+            )]
+    )
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'amount',)
 
 
 class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
@@ -102,7 +102,7 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и редактирования своих рецептов."""
 
-    ingredients = WriteIngredientRecipeSerializer(
+    ingredients = AddIngredientToRecipeSerializer(
         many=True,
         source='recipeingredient',
     )
@@ -154,3 +154,32 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         self.add_ingredients(ingredients, instance)
         instance.save()
         return instance
+
+
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для избранных рецептов"""
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = ('user', 'recipe',)
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка покупок."""
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('user', 'recipe',)
+
+
+class FavoriteShopListSerializer(serializers.ModelSerializer):
+    """Сериалайзер для связи рецептов, избранным и списком покупок."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'image',
+            'name',
+            'cooking_time',
+        )

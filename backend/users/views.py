@@ -19,19 +19,6 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ['username', ]
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
-    @action(methods=['patch', 'get'], detail=False,
-            permission_classes=[IsAuthenticated, ])
-    def me(self, request):
-        if request.method == 'GET':
-            serializer = MyUserSerializer(self.request.user)
-        else:
-            serializer = MyUserSerializer(
-                self.request.user, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save(role=request.user.role, partial=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(
         detail=True, methods=['get'], permission_classes=[AllowAny],
         url_name='avatar'

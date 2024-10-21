@@ -56,6 +56,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
         favorite = ShoppingCart.objects.filter(
             recipe=recipe, user=request.user,)
+        bad_request = Response(status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'POST':
             if not favorite.exists():
@@ -66,10 +67,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return bad_request
 
         if request.method == 'DELETE':
             if favorite.exists():
                 favorite.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return bad_request
+        return Response(status=status.HTTP_404_NOT_FOUND)

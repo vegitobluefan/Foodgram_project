@@ -139,3 +139,7 @@ MAX_NAME_LEN = 32
 MIN_VALUE_VALIDATOR = 0
 MAX_VALUE_VALIDATOR = 10000
 PAGINATION_SIZE = 6
+
+
+MODERATOR = 'moderator', 'Модератор'
+ADMIN = 'admin', 'Администратор'

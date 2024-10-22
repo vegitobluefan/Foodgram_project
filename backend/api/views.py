@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
+                            Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -8,9 +9,10 @@ from rest_framework.response import Response
 from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
 from .serializers import (CreateUpdateRecipeSerializer,
-                          FavoriteShopListSerializer, IngredientSerializer,
+                          FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
+from .utils import delete_method, pdf_file, post_method
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -46,32 +48,41 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return CreateUpdateRecipeSerializer
 
     @action(
-        detail=False,
+        detail=True,
         url_path=r'(?P<id>\d+)/shopping_cart',
         methods=['post', 'delete'],
         serializer_class=ShoppingCartSerializer,
         permission_classes=(IsAuthenticated,),
     )
-    def shopping_cart(self, request, *args, **kwargs):
+    def shopping_cart(self, request, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
-        favorite = ShoppingCart.objects.filter(
-            recipe=recipe, user=request.user,)
-        bad_request = Response(status=status.HTTP_400_BAD_REQUEST)
-
         if request.method == 'POST':
-            if not favorite.exists():
-                ShoppingCart.objects.create(
-                    recipe=recipe, user=request.user,
-                )
-                serializer = FavoriteShopListSerializer(instance=recipe)
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
-            return bad_request
+            return post_method(request, recipe, ShoppingCartSerializer)
 
         if request.method == 'DELETE':
-            if favorite.exists():
-                favorite.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return bad_request
+            return delete_method(request, recipe, ShoppingCart)
+
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(
+        detail=True,
+        methods=['get',],
+        permission_classes=(IsAuthenticated,),
+    )
+    def download_shopping_cart(self, request):
+        return pdf_file(request.user)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=(IsAuthenticated,),
+    )
+    def favorite(self, request, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
+        if request.method == 'POST':
+            return post_method(request, recipe, FavoriteRecipeSerializer)
+
+        if request.method == 'DELETE':
+            return delete_method(request, recipe, FavoriteRecipe)
+
         return Response(status=status.HTTP_404_NOT_FOUND)

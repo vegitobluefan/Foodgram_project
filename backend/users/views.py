@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import MyUser
@@ -20,7 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(
-        detail=True, methods=['get'], permission_classes=[AllowAny],
+        detail=True, methods=['get'], permission_classes=[IsAuthenticated],
         url_name='avatar'
     )
     def avatar(self, request):

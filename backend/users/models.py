@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from foodgram.settings import ADMIN, MODERATOR
 
 from .validators import validate_username
 
@@ -37,6 +38,14 @@ class MyUser(AbstractUser):
         help_text='Добавьте ваш аватар',
         blank=True,
     )
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
 
     class Meta(AbstractUser.Meta):
         ordering = ('username',)

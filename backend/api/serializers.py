@@ -170,16 +170,3 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('user', 'recipe',)
-
-
-class FavoriteShopListSerializer(serializers.ModelSerializer):
-    """Сериалайзер для связи рецептов, избранным и списком покупок."""
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'image',
-            'name',
-            'cooking_time',
-        )

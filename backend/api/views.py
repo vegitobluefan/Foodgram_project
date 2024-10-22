@@ -1,6 +1,7 @@
-from django.shortcuts import get_object_or_404
-from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
-                            Tag)
+from django.db.models import Sum
+from django.shortcuts import HttpResponse, get_object_or_404
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +13,7 @@ from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
-from .utils import delete_method, pdf_file, post_method
+from .utils import delete_method, post_method
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -20,7 +21,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    http_method_names = ('get')
+    http_method_names = ('get',)
     pagination_class = None
     search_fields = ('^name',)
 
@@ -31,14 +32,14 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
-    http_method_names = ('get')
+    http_method_names = ('get',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Recipe."""
 
     queryset = Recipe.objects.all()
-    http_method_names = ('get', 'post', 'patch', 'delete')
+    http_method_names = ('get', 'post', 'patch', 'delete',)
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination
 
@@ -50,7 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         url_path=r'(?P<id>\d+)/shopping_cart',
-        methods=['post', 'delete'],
+        methods=('post', 'delete',),
         serializer_class=ShoppingCartSerializer,
         permission_classes=(IsAuthenticated,),
     )
@@ -65,16 +66,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
-        detail=True,
-        methods=['get',],
-        permission_classes=(IsAuthenticated,),
+        detail=False,
+        methods=('get',),
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        return pdf_file(request.user)
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__carts__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(ingredient_amount=Sum('amount'))
+        shopping_list = ['Ваша корзина:\n']
+
+        for ingredient in ingredients:
+            name = ingredient['ingredient__name']
+            measurement_unit = ingredient['ingredient__measurement_unit']
+            amount = ingredient['ingredient_amount']
+            shopping_list.append(f'\n{name} - {amount}, {measurement_unit}')
+        response = HttpResponse(shopping_list, content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; filename="downloaded_shopping_cart.txt"')
+        return response
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=('post', 'delete',),
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, **kwargs):

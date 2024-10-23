@@ -1,8 +1,8 @@
+from api.utils import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes.models import Recipe
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from api.utils import Base64ImageField
-from recipes.models import Recipe
 
 from .models import MyUser, SubscriptionUser, models
 

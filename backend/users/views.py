@@ -1,6 +1,6 @@
 from api.paginators import CustomHomePagination
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
@@ -9,7 +9,8 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import MyUserSerializer, UserGetSubscribeSerializer, UserPostDelSubscribeSerializer
+from .serializers import (MyUserSerializer, UserGetSubscribeSerializer,
+                          UserPostDelSubscribeSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -1,22 +1,10 @@
-import base64
-
-from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from api.utils import Base64ImageField
+from recipes.models import Recipe
 
 from .models import MyUser, SubscriptionUser, models
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
 
 
 class MyUserSerializer(UserSerializer):
@@ -73,3 +61,39 @@ class MyUserCreateSerializer(UserCreateSerializer):
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password',
         )
+
+
+class RecipeShortInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',)
+
+
+class UserSubscribeSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MyUser
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return SubscriptionUser.objects.filter(
+            user=request.user, author=obj).exists()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes_limit = request.POST.get('recipes_limit')
+        queryset = obj.recipes.all()
+        if recipes_limit:
+            queryset = queryset[:(recipes_limit)]
+        return RecipeShortInfoSerializer(queryset, many=True).data
+
+    def get_recipes_count(self, obj) -> int:
+        return obj.recipes.all().count()

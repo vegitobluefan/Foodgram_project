@@ -70,7 +70,7 @@ class RecipeShortInfoSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time',)
 
 
-class UserSubscribeSerializer(serializers.ModelSerializer):
+class UserGetSubscribeSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -97,3 +97,29 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj) -> int:
         return obj.recipes.all().count()
+
+
+class UserPostDelSubscribeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SubscriptionUser
+        fields = ('subscribing_to', 'subscriber',)
+
+    def validate(self, data):
+        if data.get('subscribing_to') == data.get('subscriber'):
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя.'
+            )
+
+        if SubscriptionUser.objects.filter(
+            subscribing_to=data.get('subscribing_to'),
+            subscriber=data.get('subscriber')
+        ).exists():
+            raise serializers.ValidationError('Подписка уже существует.')
+        return data
+
+    def to_representation(self, instance):
+        return UserGetSubscribeSerializer(
+            instance=instance.subscriber,
+            context={'request': self.context.get('request')}
+        ).data

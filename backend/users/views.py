@@ -1,5 +1,6 @@
 from api.paginators import CustomHomePagination
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
@@ -7,8 +8,8 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .models import MyUser
-from .serializers import MyUserSerializer, UserSubscribeSerializer
+from .models import MyUser, SubscriptionUser
+from .serializers import MyUserSerializer, UserGetSubscribeSerializer, UserPostDelSubscribeSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -34,10 +35,45 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class SubscriptionListView(ListAPIView):
-    serializer_class = UserSubscribeSerializer
+    serializer_class = UserGetSubscribeSerializer
     pagination_class = CustomHomePagination
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         current_user = self.request.user
         return MyUser.objects.filter(author__subscriber=current_user)
+
+
+class SubscriptionPostDelView(ListAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = UserGetSubscribeSerializer
+
+    def post(self, request, user_id):
+        subscribing_to = get_object_or_404(MyUser, pk=user_id)
+        subscribing_to.save()
+        subscriber = request.user
+
+        serializer_subscribe = UserPostDelSubscribeSerializer(
+            data={
+                'subscribed_to': subscribing_to.id,
+                'subscriber': subscriber.id,
+            },
+            context={'request': request}
+        )
+        serializer_subscribe.is_valid(raise_exception=True)
+        serializer_subscribe.save()
+        return Response(
+            serializer_subscribe.data, status=status.HTTP_201_CREATED
+        )
+
+    def delete(self, request, user_id):
+        subscribed_to = get_object_or_404(MyUser, pk=user_id)
+
+        subscriptions = SubscriptionUser.objects.filter(
+            subscriber=request.user,
+            subscribed_to=subscribed_to
+        )
+        if not subscriptions.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        subscriptions.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

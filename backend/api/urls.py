@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from users.views import SubscriptionListView, UserViewSet
+from users.views import SubscriptionListView, UserViewSet, SubscriptionPostDelView
 
 from .views import IngredientViewSet, RecipeViewSet, TagViewSet
 
@@ -18,6 +18,11 @@ urlpatterns = [
         'users/subscriptions/',
         SubscriptionListView.as_view(),
         name='subscriptions'
+    ),
+    path(
+        'users/<int:user_id>/subscribe/',
+        SubscriptionPostDelView.as_view(),
+        name='subscription'
     ),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

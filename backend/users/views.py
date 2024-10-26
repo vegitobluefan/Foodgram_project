@@ -1,5 +1,6 @@
 from api.paginators import CustomHomePagination
 from django.shortcuts import get_object_or_404
+from djoser import views as djoser_views
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -13,16 +14,24 @@ from .serializers import (MyUserSerializer, UserGetSubscribeSerializer,
                           UserPostDelSubscribeSerializer)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(djoser_views.UserViewSet):
     """Вьюсет для модели User."""
 
-    serializer_class = MyUserSerializer
-    queryset = MyUser.objects.all()
+    # serializer_class = MyUserSerializer
+    # queryset = MyUser.objects.all()
     permission_classes = (IsAuthenticated,)
     filter_backends = DjangoFilterBackend
     lookup_field = 'username'
-    search_fields = ['username', ]
-    http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
+    search_fields = ('username', )
+    # http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
+
+    @action(
+        detail=False, methods=('get'),
+        permission_classes=(IsAuthenticated,),
+        url_name='me',
+    )
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
 
     @action(
         detail=True, methods=('get',), permission_classes=(IsAuthenticated,),

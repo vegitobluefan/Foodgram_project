@@ -92,7 +92,7 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'name', 'image', 'text', 'tags',
-            'ingredients', 'cooking_time', 'pub_date',
+            'ingredients', 'cooking_time', 'pub_date', 'image_url',
         )
 
     def get_image_url(self, obj):

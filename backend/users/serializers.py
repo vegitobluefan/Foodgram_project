@@ -7,6 +7,13 @@ from rest_framework.validators import UniqueValidator
 from .models import MyUser, SubscriptionUser, models
 
 
+class RecipeShortInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',)
+
+
 class MyUserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
@@ -22,15 +29,10 @@ class MyUserSerializer(serializers.ModelSerializer):
         read_only_fields = ('avatar', 'is_subscribed',)
 
     def get_is_subscribed(self, obj):
-        user_id = self.context.get('request').user.id
         return SubscriptionUser.objects.filter(
-            author=obj.id, user=user_id
+            author=obj.id,
+            user=self.context.get('request').user.id
         ).exists()
-
-    def get_avatar_url(self, obj):
-        if obj.avatar:
-            return obj.avatar.url
-        return None
 
 
 class MyUserCreateSerializer(UserCreateSerializer):
@@ -58,13 +60,6 @@ class MyUserCreateSerializer(UserCreateSerializer):
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password',
         )
-
-
-class RecipeShortInfoSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time',)
 
 
 class UserGetSubscribeSerializer(serializers.ModelSerializer):

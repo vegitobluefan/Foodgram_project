@@ -67,7 +67,7 @@ class SubscriptionUser(models.Model):
         related_name='author',
         verbose_name='Автор',
     )
-    subscriber = models.ForeignKey(
+    user = models.ForeignKey(
         MyUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
@@ -77,11 +77,11 @@ class SubscriptionUser(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'subscriber'],
+                fields=['author', 'user'],
                 name='unique_subscription'
             )]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 
     def __str__(self) -> str:
-        return f'{self.subscriber.username} подписчик {self.author.username}.'
+        return f'{self.user.username} подписчик {self.author.username}.'

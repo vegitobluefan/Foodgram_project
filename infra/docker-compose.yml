@@ -7,7 +7,7 @@ volumes:
 services:
 
   db:
-    # container_name: foodgram-db
+    container_name: foodgram-db
     image: postgres:13.0-alpine
     volumes:
       - db_value:/var/lib/postgresql/data/

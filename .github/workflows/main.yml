@@ -1,4 +1,4 @@
-name: Foodgram-app workflow
+name: CI for Foodgram
 
 on: [push]
 
@@ -8,59 +8,58 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.7
 
     - name: Install dependencies
-      run: | 
-        python -m pip install --upgrade pip
-        pip install flake8
+      run: |
+        python -m pip install --upgrade pip 
         cd backend/
-        pip install -r requirements.txt 
+        pip install -r requirements.txt
     - name: Test with flake8 and django tests
       run: |
         python -m flake8
-  
+
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     needs: tests
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Docker
-        uses: docker/login-action@v1
+        uses: docker/setup-buildx-action@v1 
+      - name: Login to Docker 
+        uses: docker/login-action@v1 
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2 
         with:
           context: backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/backend
-  
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend:v1.0.0
+
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
-    if: github.ref == 'refs/heads/master'
+    if: success() && github.ref == 'refs/heads/master'
     steps:
       - name: executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.HOST }} 
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend:v1.0.0
             sudo docker-compose stop
-            sudo docker-compose rm web
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
+            sudo docker-compose rm backend
+            rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
@@ -68,7 +67,9 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker-compose up -d
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+            sudo docker-compose up -d --build
 
   send_message:
     runs-on: ubuntu-latest

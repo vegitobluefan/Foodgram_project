@@ -39,6 +39,7 @@ class MyUser(AbstractUser):
         help_text='Добавьте ваш аватар',
         blank=True,
     )
+    is_subscribed = models.BooleanField(blank=False, default=False)
 
     @property
     def is_admin(self):

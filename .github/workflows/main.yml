@@ -45,7 +45,7 @@ jobs:
         with:
           context: backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/backend:v1.0.0
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend:v1.0.0
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
             sudo docker-compose stop
             sudo docker-compose rm backend
             rm .env

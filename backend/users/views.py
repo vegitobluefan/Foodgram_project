@@ -10,8 +10,8 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import (UserSerializer, UserGetSubscribeSerializer,
-                          UserPostDelSubscribeSerializer)
+from .serializers import (UserGetSubscribeSerializer,
+                          UserPostDelSubscribeSerializer, UserSerializer)
 
 
 class MyUserViewSet(UserViewSet):

@@ -1,7 +1,7 @@
 from api.paginators import CustomHomePagination
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser import views as djoser_views
+from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
@@ -10,29 +10,26 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import (MyUserSerializer, UserGetSubscribeSerializer,
+from .serializers import (UserSerializer, UserGetSubscribeSerializer,
                           UserPostDelSubscribeSerializer)
 
 
-class UserViewSet(djoser_views.UserViewSet):
+class MyUserViewSet(UserViewSet):
     """Вьюсет для модели User."""
 
-    serializer_class = MyUserSerializer
+    serializer_class = UserSerializer
     queryset = MyUser.objects.all()
     permission_classes = (IsAuthenticated,)
     filter_backends = DjangoFilterBackend
-    lookup_field = 'username'
-    search_fields = ('username', )
     # http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(
         detail=False, methods=('get'),
         permission_classes=(IsAuthenticated,),
-        url_name='me',
+        url_path='users/me', url_name='me',
     )
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
 
     @action(
         detail=True, methods=('get',), permission_classes=(IsAuthenticated,),
@@ -40,7 +37,7 @@ class UserViewSet(djoser_views.UserViewSet):
     )
     def avatar(self, request):
         return Response(
-            MyUserSerializer(request.user).data,
+            UserSerializer(request.user).data,
             status=status.HTTP_200_OK
         )
 

@@ -14,7 +14,7 @@ class RecipeShortInfoSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time',)
 
 
-class MyUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
     avatar = Base64ImageField(required=False, allow_null=True)

@@ -3,7 +3,7 @@ from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from users.serializers import MyUserSerializer
+from users.serializers import UserSerializer
 
 from .utils import Base64ImageField
 
@@ -71,7 +71,7 @@ class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
 class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Recipe."""
 
-    author = MyUserSerializer(read_only=True,)
+    author = UserSerializer(read_only=True,)
     image = Base64ImageField(
         required=False, allow_null=True,
     )

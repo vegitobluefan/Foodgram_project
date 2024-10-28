@@ -39,8 +39,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CSV_DIR = os.path.join(BASE_DIR, 'data')
-
 ROOT_URLCONF = 'foodgram.urls'
 
 TEMPLATES = [

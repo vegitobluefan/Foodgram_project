@@ -30,12 +30,13 @@ class UserViewSet(djoser_views.UserViewSet):
         permission_classes=(IsAuthenticated,),
         url_name='me',
     )
-    def me(self, request, *args, **kwargs):
-        return super().me(request, *args, **kwargs)
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True, methods=('get',), permission_classes=(IsAuthenticated,),
-        url_name='avatar'
+        url_path='me/avatar', url_name='avatar',
     )
     def avatar(self, request):
         return Response(

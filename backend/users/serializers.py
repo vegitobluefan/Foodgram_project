@@ -22,13 +22,10 @@ class MyUserSerializer(serializers.ModelSerializer):
         read_only_fields = ('avatar', 'is_subscribed',)
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        return (
-            request.user.is_authenticated
-            and SubscriptionUser.objects.filter(
-                user=request.user, author=obj
-            ).exists()
-        )
+        user_id = self.context.get('request').user.id
+        return SubscriptionUser.objects.filter(
+            author=obj.id, user=user_id
+        ).exists()
 
     def get_avatar_url(self, obj):
         if obj.avatar:

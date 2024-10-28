@@ -1,5 +1,5 @@
 from api.utils import Base64ImageField
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserCreateSerializer
 from recipes.models import Recipe
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueValidator
 from .models import MyUser, SubscriptionUser, models
 
 
-class UserSerializer(UserSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
     avatar = Base64ImageField(required=False, allow_null=True)

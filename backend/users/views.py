@@ -10,14 +10,14 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import (UserSerializer, UserGetSubscribeSerializer,
+from .serializers import (MyUserSerializer, UserGetSubscribeSerializer,
                           UserPostDelSubscribeSerializer)
 
 
 class UserViewSet(djoser_views.UserViewSet):
     """Вьюсет для модели User."""
 
-    serializer_class = UserSerializer
+    serializer_class = MyUserSerializer
     queryset = MyUser.objects.all()
     permission_classes = (IsAuthenticated,)
     filter_backends = DjangoFilterBackend

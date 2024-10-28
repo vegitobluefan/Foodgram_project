@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueValidator
 from .models import MyUser, SubscriptionUser, models
 
 
-class UserSerializer(serializers.ModelSerializer):
+class MyUserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
     avatar = Base64ImageField(required=False, allow_null=True)

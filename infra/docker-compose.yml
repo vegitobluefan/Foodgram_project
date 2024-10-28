@@ -17,9 +17,9 @@ services:
   backend:
       image: daniyarchik/foodgram_backend:latest
       container_name: foodgram-back
-      # build:
-        # context: ./backend
-        # dockerfile: Dockerfile
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
       # restart: always
       volumes:
         - static_value:/app/static/

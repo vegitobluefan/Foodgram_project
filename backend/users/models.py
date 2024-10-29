@@ -35,11 +35,11 @@ class MyUser(AbstractUser):
     )
     avatar = models.ImageField(
         verbose_name='Аватар',
-        upload_to='users/avatars',
+        upload_to='avatars',
         help_text='Добавьте ваш аватар',
         blank=True,
     )
-    is_subscribed = models.BooleanField(blank=False, default=False)
+    # is_subscribed = models.BooleanField(blank=False, default=False)
 
     @property
     def is_admin(self):

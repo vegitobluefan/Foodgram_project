@@ -7,6 +7,16 @@ from rest_framework.validators import UniqueValidator
 from .models import MyUser, SubscriptionUser, models
 
 
+class AvatarSerializer(serializers.ModelSerializer):
+    """Сериалтзатор для аватаров."""
+
+    avatar = Base64ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = MyUser
+        fields = ('avatar',)
+
+
 class RecipeShortInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -17,7 +27,6 @@ class RecipeShortInfoSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
-    avatar = Base64ImageField(required=False, allow_null=True)
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:

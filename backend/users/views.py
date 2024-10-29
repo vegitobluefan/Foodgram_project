@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from .utils import change_avatar
 
 from .models import MyUser, SubscriptionUser
 from .serializers import UserGetSubscribeSerializer, UserSerializer
@@ -23,25 +24,29 @@ class MyUserViewSet(UserViewSet):
         return context
 
     @action(
-        detail=False,
-        methods=('get'),
-        permission_classes=(IsAuthenticated,),
+        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),
     )
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(
-        detail=True,
-        methods=('get', 'put', 'delete',),
-        permission_classes=(IsAuthenticated,),
+        detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
     )
     def avatar(self, request, id=None):
-        return Response(UserSerializer(request.user).data['avatar'])
+        serializer = change_avatar(request.data)
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request):
+        data = request.data
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        change_avatar(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=False,
-        permission_classes=(IsAuthenticated,)
+        detail=False, permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         user = request.user

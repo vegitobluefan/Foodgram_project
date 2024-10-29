@@ -1,17 +1,13 @@
-from api.paginators import CustomHomePagination
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.generics import ListAPIView
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import (UserGetSubscribeSerializer,
-                          UserPostDelSubscribeSerializer, UserSerializer)
+from .serializers import UserGetSubscribeSerializer, UserSerializer
 
 
 class MyUserViewSet(UserViewSet):
@@ -44,8 +40,8 @@ class MyUserViewSet(UserViewSet):
         return Response(UserSerializer(request.user).data['avatar'])
 
     @action(
-            detail=False,
-            permission_classes=(IsAuthenticated,)
+        detail=False,
+        permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         user = request.user

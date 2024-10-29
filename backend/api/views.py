@@ -4,7 +4,7 @@ from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from .paginators import CustomHomePagination
@@ -21,9 +21,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    http_method_names = ('get',)
-    pagination_class = None
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     search_fields = ('^name',)
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,15 +31,15 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
-    http_method_names = ('get',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Recipe."""
 
     queryset = Recipe.objects.all()
-    http_method_names = ('get', 'post', 'patch', 'delete',)
+    serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination
 
@@ -50,19 +50,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        url_path=r'(?P<id>\d+)/shopping_cart',
         methods=('post', 'delete',),
-        serializer_class=ShoppingCartSerializer,
         permission_classes=(IsAuthenticated,),
     )
-    def shopping_cart(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
+    def shopping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
             return post_method(request, recipe, ShoppingCartSerializer)
-
         if request.method == 'DELETE':
             return delete_method(request, recipe, ShoppingCart)
-
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(

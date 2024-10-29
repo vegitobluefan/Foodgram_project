@@ -29,9 +29,12 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('avatar', 'is_subscribed',)
 
     def get_is_subscribed(self, obj):
-        return SubscriptionUser.objects.filter(
-            author=obj.id,
-            user=self.context.get('request').user.id
+        request = self.context.get('request')
+        if request is None:
+            return False
+        user = request.user
+        return user.is_authenticated and SubscriptionUser.objects.filter(
+            user=user, author=obj
         ).exists()
 
 

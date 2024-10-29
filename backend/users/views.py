@@ -19,69 +19,62 @@ class MyUserViewSet(UserViewSet):
 
     serializer_class = UserSerializer
     queryset = MyUser.objects.all()
-    permission_classes = (IsAuthenticated,)
-    filter_backends = DjangoFilterBackend
-    # http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['request'] = self.request
+        return context
 
     @action(
-        detail=False, methods=('get'),
+        detail=False,
+        methods=('get'),
         permission_classes=(IsAuthenticated,),
-        url_path='users/me', url_name='me',
     )
-    def me(self, request, *args, **kwargs):
-        return super().me(request, *args, **kwargs)
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
     @action(
-        detail=True, methods=('get',), permission_classes=(IsAuthenticated,),
-        url_path='me/avatar', url_name='avatar',
+        detail=True,
+        methods=('get', 'put', 'delete',),
+        permission_classes=(IsAuthenticated,),
     )
-    def avatar(self, request):
-        return Response(
-            UserSerializer(request.user).data,
-            status=status.HTTP_200_OK
+    def avatar(self, request, id=None):
+        return Response(UserSerializer(request.user).data['avatar'])
+
+    @action(
+            detail=False,
+            permission_classes=(IsAuthenticated,)
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = MyUser.objects.filter(following__username=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = UserGetSubscribeSerializer(
+            pages, many=True, context={'request': request}
         )
+        return self.get_paginated_response(serializer.data)
 
+    @action(
+        detail=True,
+        methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,)
+    )
+    def subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(MyUser, pk=id)
 
-class SubscriptionListView(ListAPIView):
-    serializer_class = UserGetSubscribeSerializer
-    pagination_class = CustomHomePagination
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+        if request.method == 'POST':
+            serializer = UserGetSubscribeSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            SubscriptionUser.objects.create(username=user, author=author)
+            return Response(serializer.data)
 
-    def get_queryset(self):
-        current_user = self.request.user
-        return MyUser.objects.filter(author__subscriber=current_user)
-
-
-class SubscriptionPostDelView(ListAPIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    serializer_class = UserGetSubscribeSerializer
-
-    def post(self, request, user_id):
-        subscribing_to = get_object_or_404(MyUser, pk=user_id)
-        subscribing_to.save()
-        subscriber = request.user
-
-        serializer_subscribe = UserPostDelSubscribeSerializer(
-            data={
-                'subscribed_to': subscribing_to.id,
-                'subscriber': subscriber.id,
-            },
-            context={'request': request}
-        )
-        serializer_subscribe.is_valid(raise_exception=True)
-        serializer_subscribe.save()
-        return Response(
-            serializer_subscribe.data, status=status.HTTP_201_CREATED
-        )
-
-    def delete(self, request, user_id):
-        subscribed_to = get_object_or_404(MyUser, pk=user_id)
-
-        subscriptions = SubscriptionUser.objects.filter(
-            subscriber=request.user,
-            subscribed_to=subscribed_to
-        )
-        if not subscriptions.exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        subscriptions.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.method == 'DELETE':
+            get_object_or_404(
+                SubscriptionUser, username=user, author=author
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

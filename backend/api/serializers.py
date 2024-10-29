@@ -72,9 +72,7 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Recipe."""
 
     author = UserSerializer(read_only=True,)
-    image = Base64ImageField(
-        required=False, allow_null=True,
-    )
+    image = Base64ImageField()
     tags = TagSerializer(
         many=True, read_only=True,
     )
@@ -83,22 +81,17 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
         source='recipeingredient',
         read_only=True,
     )
-    image_url = serializers.SerializerMethodField(
-        'get_image_url',
-        read_only=True,
+    is_favorited = serializers.BooleanField(default=False, read_only=True)
+    is_in_shopping_cart = serializers.BooleanField(
+        default=False, read_only=True
     )
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'name', 'image', 'text', 'tags',
-            'ingredients', 'cooking_time', 'pub_date', 'image_url',
-        )
-
-    def get_image_url(self, obj):
-        if obj.image:
-            return obj.image.url
-        return None
+            'id', 'author', 'name', 'image', 'text', 'tags', 'pub_date'
+            'ingredients', 'cooking_time', 'is_favorited',
+            'is_in_shopping_cart',)
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
@@ -156,6 +149,13 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         self.add_ingredients(ingredients, instance)
         instance.save()
         return instance
+
+    def validate_image(self, image_data):
+        if image_data is None:
+            raise serializers.ValidationError(
+                'Добавьте изображение рецепта.'
+            )
+        return image_data
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):

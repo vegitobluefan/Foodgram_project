@@ -1,5 +1,6 @@
 from django.db.models import Sum
-from django.shortcuts import HttpResponse, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
@@ -43,6 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination
+    filter_backends = DjangoFilterBackend
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -56,8 +58,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
+
         if request.method == 'POST':
             return post_method(request, recipe, ShoppingCartSerializer)
+
         if request.method == 'DELETE':
             return delete_method(request, recipe, ShoppingCart)
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -69,25 +73,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = IngredientRecipe.objects.filter(
-            recipe__carts__user=request.user
-        ).values(
+            recipe__shopping_list__user=request.user
+        ).order_by('ingredient__name').values(
             'ingredient__name', 'ingredient__measurement_unit'
-        ).annotate(ingredient_amount=Sum('amount'))
-        shopping_list = ['Ваша корзина:\n']
-
-        for ingredient in ingredients:
-            name = ingredient['ingredient__name']
-            measurement_unit = ingredient['ingredient__measurement_unit']
-            amount = ingredient['ingredient_amount']
-            shopping_list.append(f'\n{name} - {amount}, {measurement_unit}')
-        response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = (
-            'attachment; filename="downloaded_shopping_cart.txt"')
-        return response
+        ).annotate(amount=Sum('amount'))
+        return self.send_message(ingredients)
 
     @action(
-        detail=True,
-        methods=('post', 'delete',),
+        detail=True, methods=('post', 'delete',),
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, **kwargs):
@@ -97,5 +90,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             return delete_method(request, recipe, FavoriteRecipe)
-
         return Response(status=status.HTTP_404_NOT_FOUND)

@@ -1,3 +1,5 @@
+from api.serializers import (AvatarSerializer, UserGetSubscribeSerializer,
+                             UserSerializer)
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -7,7 +9,6 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from api.serializers import (AvatarSerializer, UserGetSubscribeSerializer, UserSerializer)
 
 
 class MyUserViewSet(UserViewSet):

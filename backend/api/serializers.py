@@ -82,24 +82,7 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
             'id', 'is_subscribed', 'recipes', 'recipes_count',
             'email', 'username', 'first_name', 'last_name',
         )
-        read_only_fields = ('email', 'first_name', 'last_name', 'username',)
-
-    def validate(self, data):
-        request = self.context.get('request')
-        author_id = request.parser_context.get('kwargs').get('id')
-        author = get_object_or_404(MyUser, id=author_id)
-        user = request.user
-        if user.subscriber.filter(author=author_id).exists():
-            raise ValidationError(
-                detail='Подписка уже существует',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        if user == author:
-            raise ValidationError(
-                detail='Нельзя подписаться на самого себя',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        return data
+        read_only_fields = ('email', 'username', 'first_name', 'last_name',)
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -114,7 +97,9 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
         recipes = Recipe.objects.filter(author=obj)
         if limit:
             recipes = recipes[:int(limit)]
-        serializer = ReadOnlyRecipeSerializer(recipes, many=True)
+        serializer = ReadOnlyRecipeSerializer(
+            recipes, context={"request": request}, many=True
+        )
         return serializer.data
 
     def get_recipes_count(self, obj):

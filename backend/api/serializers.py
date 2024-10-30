@@ -233,13 +233,13 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         return (
-            request.user.is_authenticated
+            request and request.user.is_authenticated
             and obj.favorite_recipe.filter(user=request.user).exists())
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         return (
-            request.user.is_authenticated
+            request and request.user.is_authenticated
             and obj.cart_recipe.filter(user=request.user).exists())
 
 

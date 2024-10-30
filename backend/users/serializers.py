@@ -1,7 +1,9 @@
 from api.utils import Base64ImageField
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from recipes.models import Recipe
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from .models import MyUser, SubscriptionUser, models
@@ -54,24 +56,17 @@ class MyUserCreateSerializer(UserCreateSerializer):
         validators=[
             UniqueValidator(
                 queryset=MyUser.objects.all(),
-                message='Пользователь с таким никнеймом уже существует!'
-            )
-        ]
-    )
+                message='Пользователь с таким никнеймом уже существует!')])
     email = models.EmailField(
         validators=[
             UniqueValidator(
                 queryset=MyUser.objects.all(),
-                message='Пользователь с такой почтой уже существует!'
-            )
-        ]
-    )
+                message='Пользователь с такой почтой уже существует!')])
 
     class Meta:
         model = MyUser
         fields = (
-            'id', 'email', 'username', 'first_name', 'last_name', 'password',
-        )
+            'id', 'email', 'username', 'first_name', 'last_name', 'password',)
 
 
 class UserGetSubscribeSerializer(serializers.ModelSerializer):
@@ -81,8 +76,28 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MyUser
-        fields = ('id', 'is_subscribed', 'recipes', 'recipes_count',
-                  'email', 'id', 'username', 'first_name', 'last_name',)
+        fields = (
+            'id', 'is_subscribed', 'recipes', 'recipes_count',
+            'email', 'username', 'first_name', 'last_name',
+        )
+        read_only_fields = ('email', 'first_name', 'last_name', 'username',)
+
+    def validate(self, data):
+        request = self.context.get('request')
+        author_id = request.parser_context.get('kwargs').get('id')
+        author = get_object_or_404(MyUser, id=author_id)
+        user = request.user
+        if user.subscriber.filter(author=author_id).exists():
+            raise ValidationError(
+                detail='Подписка уже существует',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Нельзя подписаться на самого себя',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')

@@ -110,14 +110,15 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.POST.get('recipes_limit')
-        queryset = obj.recipes.all()
-        if recipes_limit:
-            queryset = queryset[:(recipes_limit)]
-        return RecipeShortInfoSerializer(queryset, many=True).data
+        limit = request.query_params.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj)
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = ReadOnlyRecipeSerializer(recipes, many=True)
+        return serializer.data
 
     def get_recipes_count(self, obj):
-        return obj.recipes.all().count()
+        return Recipe.objects.filter(author=obj).count()
 
 
 class UserPostDelSubscribeSerializer(serializers.ModelSerializer):

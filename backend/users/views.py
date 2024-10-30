@@ -7,8 +7,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import MyUser, SubscriptionUser
-from .serializers import (AvatarSerializer, UserGetSubscribeSerializer,
-                          UserSerializer)
+from api.serializers import (AvatarSerializer, UserGetSubscribeSerializer, UserSerializer)
 
 
 class MyUserViewSet(UserViewSet):
@@ -83,6 +82,6 @@ class MyUserViewSet(UserViewSet):
 
         if request.method == 'DELETE':
             get_object_or_404(
-                SubscriptionUser, username=author, author=author
+                SubscriptionUser, user=subscriber, author=author
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

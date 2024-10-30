@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from users.models import MyUser, SubscriptionUser, models
 
-from .utils import Base64ImageField
+from .utils import Base64ImageField, check_request
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -232,15 +232,11 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        return (
-            request and request.user.is_authenticated
-            and obj.favorite_recipe.filter(user=request.user).exists())
+        return check_request(request, obj, FavoriteRecipe)
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        return (
-            request and request.user.is_authenticated
-            and obj.cart_recipe.filter(user=request.user).exists())
+        return check_request(request, obj, ShoppingCart)
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):

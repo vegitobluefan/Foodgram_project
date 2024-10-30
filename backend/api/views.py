@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, exceptions
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -44,12 +44,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination
-    filter_backends = DjangoFilterBackend
+    # filter_backends = DjangoFilterBackend
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ReadOnlyRecipeSerializer
-        return CreateUpdateRecipeSerializer
+        if self.request.method in ('create', 'update', 'partial_update'):
+            return CreateUpdateRecipeSerializer
+        return ReadOnlyRecipeSerializer
 
     @action(
         detail=True,
@@ -86,8 +86,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
         if request.method == 'POST':
-            return post_method(request, recipe, FavoriteRecipeSerializer)
+            if FavoriteRecipe.objects.filter(
+                user=request.user, recipe=recipe
+            ).exists():
+                raise exceptions.ValidationError(
+                    'Рецепт уже добавлен в избранное.'
+                )
+            FavoriteRecipe.objects.create(user=request.user, recipe=recipe)
+            serializer = FavoriteRecipeSerializer(
+                recipe, context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            return delete_method(request, recipe, FavoriteRecipe)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            if not FavoriteRecipe.objects.filter(
+                user=request.user, recipe=recipe
+            ).exists():
+                raise exceptions.ValidationError(
+                    'Рецепта нет в избранном.'
+                )
+            favorite = get_object_or_404(
+                FavoriteRecipe,
+                user=request.user,
+                recipe=recipe
+            )
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

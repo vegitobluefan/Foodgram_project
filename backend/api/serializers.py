@@ -81,17 +81,27 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
         source='recipeingredient',
         read_only=True,
     )
-    is_favorited = serializers.BooleanField(default=False, read_only=True)
-    is_in_shopping_cart = serializers.BooleanField(
-        default=False, read_only=True
-    )
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'name', 'image', 'text', 'tags', 'pub_date'
-            'ingredients', 'cooking_time', 'is_favorited',
+            'id', 'author', 'name', 'image', 'text', 'tags', 'ingredients',
+            'pub_date', 'cooking_time', 'is_favorited',
             'is_in_shopping_cart',)
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        return (
+            request.user.is_authenticated
+            and obj.favorite_recipe.filter(user=request.user).exists())
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        return (
+            request.user.is_authenticated
+            and obj.cart_recipe.filter(user=request.user).exists())
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
@@ -116,8 +126,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time',
-        )
+            'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time',)
 
     def add_ingredients(self, ingredients, recipe):
         ingredient_list = [
@@ -156,6 +165,13 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
                 'Добавьте изображение рецепта.'
             )
         return image_data
+
+    def to_representation(self, instance):
+        serializer = ReadOnlyRecipeSerializer(
+            instance,
+            context={'request': self.context.get('request')}
+        )
+        return serializer.data
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):

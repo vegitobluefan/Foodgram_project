@@ -4,8 +4,6 @@ from django.db import models
 
 from foodgram.settings import ADMIN, MODERATOR
 
-from .validators import validate_username
-
 
 class MyUser(AbstractUser):
     """Модель для описания пользователя."""
@@ -20,7 +18,7 @@ class MyUser(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=150,
         unique=True,
-        validators=(validate_username, UnicodeUsernameValidator(),),
+        validators=(UnicodeUsernameValidator(),),
         help_text='Введите никнейм',
     )
     first_name = models.CharField(
@@ -39,7 +37,6 @@ class MyUser(AbstractUser):
         help_text='Добавьте ваш аватар',
         blank=True,
     )
-    # is_subscribed = models.BooleanField(blank=False, default=False)
 
     @property
     def is_admin(self):

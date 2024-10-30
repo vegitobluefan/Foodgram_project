@@ -81,8 +81,8 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MyUser
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+        fields = ('id', 'is_subscribed', 'recipes', 'recipes_count',
+                  'email', 'id', 'username', 'first_name', 'last_name',)
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -99,7 +99,7 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
             queryset = queryset[:(recipes_limit)]
         return RecipeShortInfoSerializer(queryset, many=True).data
 
-    def get_recipes_count(self, obj) -> int:
+    def get_recipes_count(self, obj):
         return obj.recipes.all().count()
 
 

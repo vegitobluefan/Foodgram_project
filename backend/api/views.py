@@ -44,7 +44,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     pagination_class = CustomHomePagination
-    # filter_backends = DjangoFilterBackend
 
     def get_serializer_class(self):
         if self.request.method in ('create', 'update', 'partial_update'):

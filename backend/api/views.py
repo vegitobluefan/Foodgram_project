@@ -1,6 +1,8 @@
+from django.db.models import Sum
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from recipes.models import (FavoriteRecipe, Ingredient,
-                            Recipe, ShoppingCart, Tag)
+                            Recipe, ShoppingCart, Tag, IngredientRecipe)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
@@ -13,7 +15,7 @@ from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
-from .utils import delete_method, post_method
+from .utils import delete_method, post_method, convert_txt
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -80,3 +82,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe=get_object_or_404(Recipe, id=pk)
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__cart_recipe__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_sum=Sum('amount'))
+        return convert_txt(ingredients)

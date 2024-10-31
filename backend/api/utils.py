@@ -43,7 +43,7 @@ def delete_method(request, instance, model):
 
 
 def convert_txt(shop_list):
-    file_name = 'shopping_list.txt'
+    file_name = 'корзина.txt'
     lines = []
     for element in shop_list:
         name = element['ingredient__name']

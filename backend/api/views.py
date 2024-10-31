@@ -1,8 +1,7 @@
 from django.db.models import Sum
-from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
-from recipes.models import (FavoriteRecipe, Ingredient,
-                            Recipe, ShoppingCart, Tag, IngredientRecipe)
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
@@ -15,7 +14,7 @@ from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
-from .utils import delete_method, post_method, convert_txt
+from .utils import convert_txt, delete_method, post_method
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

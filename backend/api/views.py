@@ -45,9 +45,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomHomePagination
 
     def get_serializer_class(self):
-        if self.request.method in ('create', 'update', 'partial_update'):
-            return CreateUpdateRecipeSerializer
-        return ReadOnlyRecipeSerializer
+        if self.request.method == 'GET':
+            return ReadOnlyRecipeSerializer
+        return CreateUpdateRecipeSerializer
 
     @action(
         detail=True,

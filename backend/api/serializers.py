@@ -1,4 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import transaction
 from djoser.serializers import UserCreateSerializer
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
@@ -225,6 +226,7 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и редактирования своих рецептов."""
 
+    author = UserSerializer(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(
         many=True,
         source='recipeingredient',
@@ -238,32 +240,35 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             MinValueValidator(1),
             MaxValueValidator(10000)
         ),
-        error_messages={'validators': 'Неподходящее время приготовления'}
-    )
+        error_messages={'validators': 'Неподходящее время приготовления'})
 
     class Meta:
         model = Recipe
         fields = (
-            'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time',)
+            'id', 'author', 'ingredients', 'tags',
+            'image', 'name', 'text', 'cooking_time',)
 
-    def add_ingredients(self, ingredients, recipe):
-        ingredient_list = [
+    @staticmethod
+    def add_ingredients(recipe, tags, ingredients):
+        recipe.tags.set(tags)
+        IngredientRecipe.objects.bulk_create(
             IngredientRecipe(
                 recipe=recipe,
                 ingredient=Ingredient.objects.get(id=ingredient.get('id')),
                 amount=ingredient.get('amount'),
             )
             for ingredient in ingredients
-        ]
-        IngredientRecipe.objects.bulk_create(ingredient_list)
+        )
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('recipeingredient')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags)
-        self.add_ingredients(ingredients, recipe)
-        return recipe
+        ingredients = validated_data.pop('recipeingredient')
+        with transaction.atomic():
+            recipe = Recipe.objects.create(
+                author=self.context['request'].user, **validated_data
+            )
+            self.add_ingredients(recipe, tags, ingredients)
+            return recipe
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('recipeingredient')
@@ -272,15 +277,14 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         instance.tags.set(tags)
         IngredientRecipe.objects.filter(recipe=instance).delete()
         super().update(instance, validated_data)
-        self.add_ingredients(ingredients, instance)
+        self.add_ingredients(instance, tags, ingredients)
         instance.save()
         return instance
 
     def validate_image(self, image_data):
         if image_data is None:
             raise serializers.ValidationError(
-                'Добавьте изображение рецепта.'
-            )
+                'Добавьте изображение рецепта.')
         return image_data
 
     def to_representation(self, instance):

@@ -1,6 +1,5 @@
-from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
+from recipes.models import (FavoriteRecipe, Ingredient,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action

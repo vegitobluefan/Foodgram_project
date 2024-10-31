@@ -52,17 +52,15 @@ class MyUserViewSet(UserViewSet):
         self.change_avatar(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # @action(
-        # methods=('get',), detail=False, permission_classes=(IsAuthenticated,)
-    # )
-    # def subscriptions(self, request):
-        # user = request.user
-        # queryset = MyUser.objects.filter(author__user=user)
-        # pages = self.paginate_queryset(queryset)
-        # serializer = UserGetSubscribeSerializer(
-        # pages, many=True, context={'request': request}
-        # )
-        # return self.get_paginated_response(serializer.data)
+    @action(detail=False, permission_classes=(IsAuthenticated,))
+    def subscriptions(self, request):
+        user = request.user
+        queryset = MyUser.objects.filter(following__username=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = UserGetSubscribeSerializer(
+            pages, many=True, context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
@@ -86,12 +84,3 @@ class MyUserViewSet(UserViewSet):
                 SubscriptionUser, user=subscriber, author=author
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserSubscriptionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """Получение списка всех подписок на пользователей."""
-
-    serializer_class = UserGetSubscribeSerializer
-
-    def get_queryset(self):
-        return MyUser.objects.filter(following__user=self.request.user)

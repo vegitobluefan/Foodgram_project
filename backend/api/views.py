@@ -50,13 +50,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return CreateUpdateRecipeSerializer
 
     @action(
-        detail=True,
-        methods=('post', 'delete',),
+        detail=True, methods=('post', 'delete',),
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
-
         if request.method == 'POST':
             return post_method(request, recipe, ShoppingCartSerializer)
 
@@ -65,36 +63,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
-        detail=False,
-        methods=('get',),
-        permission_classes=(IsAuthenticated,)
+        detail=True, methods=('post',), permission_classes=(IsAuthenticated,),
     )
-    def download_shopping_cart(self, request):
-        ingredients = IngredientRecipe.objects.filter(
-            recipe__shopping_list__user=request.user
-        ).order_by('ingredient__name').values(
-            'ingredient__name', 'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
-        return self.send_message(ingredients)
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        serializer = FavoriteRecipeSerializer(
+            data={'user': request.user.id, 'recipe': recipe.id},
+            context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(
-        detail=True, methods=('post', 'delete',),
-        permission_classes=(IsAuthenticated,),
-    )
-    def favorite(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs.get('id'))
-        if request.method == 'POST':
-            FavoriteRecipe.objects.create(user=request.user, recipe=recipe)
-            serializer = FavoriteRecipeSerializer(
-                recipe, context={'request': request}
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            favorite = get_object_or_404(
-                FavoriteRecipe,
-                user=request.user,
-                recipe=recipe
-            )
-            favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        get_object_or_404(
+            FavoriteRecipe, user=request.user,
+            recipe=get_object_or_404(Recipe, id=pk)
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

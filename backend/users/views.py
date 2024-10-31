@@ -52,16 +52,6 @@ class MyUserViewSet(UserViewSet):
         self.change_avatar(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, permission_classes=(IsAuthenticated,))
-    def subscriptions(self, request):
-        user = request.user
-        queryset = MyUser.objects.filter(following__username=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = UserGetSubscribeSerializer(
-            pages, many=True, context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
-
     @action(
         detail=True,
         methods=('post', 'delete'),
@@ -84,3 +74,9 @@ class MyUserViewSet(UserViewSet):
                 SubscriptionUser, user=subscriber, author=author
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),
+    )
+    def subscriptions(self, request):
+        pass

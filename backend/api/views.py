@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from .paginators import CustomHomePagination
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
@@ -95,3 +96,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name'
         ).annotate(ingredient_sum=Sum('amount'))
         return download_cart(ingredients)
+
+    @action(
+        methods=('get',), detail=True,
+        url_path='get-link',
+        url_name='get-link',
+    )
+    def get_link(self, request, pk=None):
+        pass

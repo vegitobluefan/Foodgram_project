@@ -14,7 +14,7 @@ from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
-from .utils import convert_txt, delete_method, post_method
+from .utils import delete_method, download_cart, post_method
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -94,4 +94,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).order_by(
             'ingredient__name'
         ).annotate(ingredient_sum=Sum('amount'))
-        return convert_txt(ingredients)
+        return download_cart(ingredients)

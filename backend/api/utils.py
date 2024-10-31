@@ -1,7 +1,7 @@
 import base64
-from django.http import HttpResponse
 
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
@@ -42,7 +42,7 @@ def delete_method(request, instance, model):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def convert_txt(shop_list):
+def download_cart(shop_list):
     file_name = 'корзина.txt'
     lines = []
     for element in shop_list:

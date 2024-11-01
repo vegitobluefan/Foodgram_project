@@ -2,7 +2,7 @@ from api.serializers import (AvatarSerializer, UserGetSubscribeSerializer,
                              UserSerializer)
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import status, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -71,3 +71,12 @@ class MyUserViewSet(UserViewSet):
             data = {'avatar': None}
         self.change_avatar(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSubscriptionsViewSet(mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
+    """Получение списка всех подписок на пользователей."""
+    serializer_class = UserGetSubscribeSerializer
+
+    def get_queryset(self):
+        return MyUser.objects.filter(subscriber__user=self.request.user)

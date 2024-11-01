@@ -1,9 +1,11 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from users.models import MyUser, SubscriptionUser, models
 
@@ -82,6 +84,23 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
             'email', 'username', 'first_name', 'last_name',
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name',)
+
+    def validate(self, data):
+        author_id = self.context.get(
+            'request').parser_context.get('kwargs').get('id')
+        author = get_object_or_404(MyUser, id=author_id)
+        user = self.context.get('request').user
+        if user.follower.filter(author=author_id).exists():
+            raise ValidationError(
+                detail='Подписка уже существует',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Нельзя подписаться на самого себя',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')

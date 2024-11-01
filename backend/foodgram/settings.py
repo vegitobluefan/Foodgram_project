@@ -145,3 +145,4 @@ PAGINATION_SIZE = 6
 
 MODERATOR = 'moderator', 'Модератор'
 ADMIN = 'admin', 'Администратор'
+RECIPE_LINK = 'http://localhost/recipes'

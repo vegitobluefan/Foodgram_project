@@ -57,9 +57,19 @@ class MyUserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=["get"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+    )
     def subscriptions(self, request):
-        pass
+        curr_user = request.user
+        subscriptions = MyUser.objects.filter(author__user=curr_user)
+        paginator = self.paginate_queryset(subscriptions)
+        serializer = UserGetSubscribeSerializer(
+            paginator, many=True, context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True, methods=('put',), permission_classes=(IsAuthenticated,),

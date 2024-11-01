@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from foodgram.settings import RECIPE_LINK
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import status, viewsets
@@ -8,15 +9,14 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomHomePagination
-from .filters import RecipeFilter, IngredientFilter
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
 from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer)
 from .utils import delete_method, download_cart, post_method
-from foodgram.settings import RECIPE_LINK
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -100,7 +100,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         methods=('get',), detail=True,
         url_path='get-link', url_name='get-link',)
-    def get_link(self, pk=None):
+    def get_link(self, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         link = f'{RECIPE_LINK}/{recipe.id}/'
         return Response({'short-link': link}, status=status.HTTP_200_OK)

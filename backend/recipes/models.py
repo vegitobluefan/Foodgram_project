@@ -1,17 +1,92 @@
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from users.models import MyUser
+from foodgram.settings import (INGREDIENT_NAME_LEN, MAX_EMAIL_LEN,
+                               MAX_NAME_LEN, MAX_TAG_LEN,
+                               MAX_TEXT_LEN, MEASURMENT_UNIT_LEN)
+
+
+class MyUser(AbstractUser):
+    """Модель для описания пользователя."""
+
+    email = models.EmailField(
+        verbose_name='Электронная почта',
+        unique=True,
+        max_length=MAX_EMAIL_LEN,
+        help_text='Введите вашу электронную почту'
+    )
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=MAX_NAME_LEN,
+        unique=True,
+        validators=(UnicodeUsernameValidator(),),
+        help_text='Введите никнейм',
+    )
+    first_name = models.CharField(
+        max_length=MAX_NAME_LEN,
+        verbose_name='Имя',
+        help_text='Введите ваше имя',
+    )
+    last_name = models.CharField(
+        max_length=MAX_NAME_LEN,
+        verbose_name='Фамилия',
+        help_text='Введите вашу фамилию',
+    )
+    avatar = models.ImageField(
+        verbose_name='Аватар',
+        upload_to='avatars',
+        help_text='Добавьте ваш аватар',
+        blank=True,
+    )
+
+    class Meta(AbstractUser.Meta):
+        ordering = ('username',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
+
+
+class SubscriptionUser(models.Model):
+    """Модель подписки пользователей."""
+
+    author = models.ForeignKey(
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='author',
+        verbose_name='Автор',
+    )
+    user = models.ForeignKey(
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name='Подписчик',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'user'],
+                name='unique_subscription'
+            )]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self) -> str:
+        return f'{self.user.username} подписчик {self.author.username}.'
 
 
 class Tag(models.Model):
     """Модель для описания тегов."""
 
     name = models.CharField(
-        max_length=32,
+        max_length=MAX_TAG_LEN,
         verbose_name='Название',
         unique=True
     )
     slug = models.SlugField(
-        max_length=32,
+        max_length=MAX_TAG_LEN,
         verbose_name='Слаг',
         unique=True,
     )
@@ -25,15 +100,15 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель продуктов для приготовления блюда по рецепту."""
+    """Модель ингредиентов рецепта."""
 
     name = models.CharField(
-        max_length=128,
+        max_length=INGREDIENT_NAME_LEN,
         verbose_name='Название',
         unique=True
     )
     measurement_unit = models.CharField(
-        max_length=64,
+        max_length=MEASURMENT_UNIT_LEN,
         verbose_name='Единица измерения',
     )
 
@@ -55,7 +130,7 @@ class Recipe(models.Model):
         verbose_name='Автор рецепта',
     )
     name = models.CharField(
-        max_length=256,
+        max_length=MAX_NAME_LEN,
         verbose_name='Название',
     )
     image = models.ImageField(
@@ -65,7 +140,7 @@ class Recipe(models.Model):
         blank=True
     )
     text = models.TextField(
-        max_length=512,
+        max_length=MAX_TEXT_LEN,
         verbose_name='Описание',
     )
     ingredient = models.ManyToManyField(

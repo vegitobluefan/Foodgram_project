@@ -1,17 +1,18 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer
-from rest_framework import serializers
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            Recipe, ShoppingCart, Tag)
+                            MyUser, Recipe, ShoppingCart, SubscriptionUser,
+                            Tag, models)
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from users.models import MyUser, SubscriptionUser, models
+from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
 
 from .utils import Base64ImageField, check_request
 
 
 class AvatarSerializer(serializers.ModelSerializer):
-    """Сериалтзатор для аватаров."""
+    """Сериализатор для аватаров."""
 
     avatar = Base64ImageField(required=False, allow_null=True)
 
@@ -21,6 +22,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class RecipeShortInfoSerializer(serializers.ModelSerializer):
+    """Сериализатор для краткой информации о рецептах."""
 
     class Meta:
         model = Recipe
@@ -71,6 +73,8 @@ class MyUserCreateSerializer(UserCreateSerializer):
 
 
 class UserGetSubscribeSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения подписок пользователя."""
+
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -106,27 +110,26 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
 
 
 class UserPostDelSubscribeSerializer(serializers.ModelSerializer):
+    """Сериализатор для удаления и создания подписки пользователя."""
 
     class Meta:
         model = SubscriptionUser
-        fields = ('subscribing_to', 'subscriber',)
+        fields = ('author', 'user',)
 
     def validate(self, data):
-        if data.get('subscribing_to') == data.get('subscriber'):
+        if data.get('author') == data.get('user'):
             raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя.'
-            )
-
+                'Нельзя подписаться на самого себя.')
         if SubscriptionUser.objects.filter(
-            subscribing_to=data.get('subscribing_to'),
-            subscriber=data.get('subscriber')
+            author=data.get('author'),
+            user=data.get('user')
         ).exists():
             raise serializers.ValidationError('Подписка уже существует.')
         return data
 
     def to_representation(self, instance):
         return UserGetSubscribeSerializer(
-            instance=instance.subscriber,
+            instance=instance.user,
             context={'request': self.context.get('request')}
         ).data
 
@@ -143,19 +146,15 @@ class TagSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Tag."""
 
     name = serializers.CharField(
-        max_length=32,
         validators=[
             UniqueValidator(
                 queryset=Tag.objects.all(), message='Такой тег уже существует!'
-            )],
-    )
+            )],)
     slug = serializers.SlugField(
-        max_length=32,
         validators=[
             UniqueValidator(
                 queryset=Tag.objects.all(),
-                message='Такой слаг тега уже существует!')],
-    )
+                message='Такой слаг тега уже существует!')],)
 
     class Meta:
         model = Tag
@@ -184,7 +183,7 @@ class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
         required=True,
         validators=[
             MinValueValidator(
-                1, 'Должен быть хотя бы один ингредиент.'
+                MIN_VALUE_VALIDATOR, 'Должен быть хотя бы один ингредиент.'
             )]
     )
 
@@ -239,8 +238,8 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
         validators=(
-            MinValueValidator(1),
-            MaxValueValidator(10000)
+            MinValueValidator(MIN_VALUE_VALIDATOR),
+            MaxValueValidator(MAX_VALUE_VALIDATOR)
         ),
         error_messages={'validators': 'Неподходящее время приготовления'})
 
@@ -282,12 +281,6 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         self.add_ingredients(instance, tags, ingredients)
         instance.save()
         return instance
-
-    def validate_image(self, image_data):
-        if image_data is None:
-            raise serializers.ValidationError(
-                'Добавьте изображение рецепта.')
-        return image_data
 
     def to_representation(self, instance):
         serializer = ReadOnlyRecipeSerializer(

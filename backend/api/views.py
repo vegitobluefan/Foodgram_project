@@ -1,9 +1,11 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from djoser.views import UserViewSet
 from foodgram.settings import RECIPE_LINK
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            Recipe, ShoppingCart, Tag)
-from rest_framework import status, viewsets
+                            MyUser, Recipe, ShoppingCart, SubscriptionUser,
+                            Tag)
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -11,12 +13,84 @@ from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomHomePagination
-from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
-from .serializers import (CreateUpdateRecipeSerializer,
+from .serializers import (AvatarSerializer, CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer)
+                          TagSerializer, UserGetSubscribeSerializer,
+                          UserSerializer)
 from .utils import delete_method, download_cart, post_method
+
+
+class MyUserViewSet(UserViewSet):
+    """Вьюсет для модели User."""
+
+    serializer_class = UserSerializer
+    queryset = MyUser.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['request'] = self.request
+        return context
+
+    def change_avatar(self, data):
+        instance = self.get_instance()
+        serializer = AvatarSerializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
+
+    @action(
+        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),)
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+    @action(
+        detail=True, methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,),)
+    def subscribe(self, request, id=None):
+        subscriber = self.request.user
+        author = get_object_or_404(MyUser, pk=id)
+
+        if request.method == 'POST':
+            serializer = UserGetSubscribeSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            SubscriptionUser.objects.create(user=subscriber, author=author)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            get_object_or_404(
+                SubscriptionUser, user=subscriber, author=author
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
+    )
+    def avatar(self, request, id=None):
+        serializer = self.change_avatar(request.data)
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request, id=None):
+        data = request.data
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        self.change_avatar(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSubscriptionsViewSet(
+    mixins.ListModelMixin, viewsets.GenericViewSet
+):
+    """Viewset для отображения подписок пользователя."""
+    serializer_class = UserGetSubscribeSerializer
+
+    def get_queryset(self):
+        return MyUser.objects.filter(author__user=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -44,7 +118,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     serializer_class = CreateUpdateRecipeSerializer
-    permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     filterset_class = RecipeFilter
     pagination_class = CustomHomePagination
 

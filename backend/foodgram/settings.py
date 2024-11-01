@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'django_filters',
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
-    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -131,18 +130,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users.MyUser'
+AUTH_USER_MODEL = 'recipes.MyUser'
 
 # Константы типа int
 
-MAX_EMAIL_LEN = 256
-MAX_TEXT_LEN = 256
-MAX_NAME_LEN = 32
-MIN_VALUE_VALIDATOR = 0
+MAX_EMAIL_LEN = 254
+MAX_TAG_LEN = 32
+INGREDIENT_NAME_LEN = 128
+MAX_NAME_LEN = 256
+MEASURMENT_UNIT_LEN = 64
+MAX_TEXT_LEN = 512
+MIN_VALUE_VALIDATOR = 1
 MAX_VALUE_VALIDATOR = 10000
-PAGINATION_SIZE = 6
 
-
-MODERATOR = 'moderator', 'Модератор'
-ADMIN = 'admin', 'Администратор'
 RECIPE_LINK = 'http://localhost/recipes'

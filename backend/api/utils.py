@@ -43,7 +43,7 @@ def delete_method(request, instance, model):
 
 
 def download_cart(shop_list):
-    file_name = 'корзина.txt'
+    file_name = 'shopping_cart.txt'
     lines = []
     for element in shop_list:
         name = element['ingredient__name']

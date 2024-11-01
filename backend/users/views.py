@@ -73,9 +73,9 @@ class MyUserViewSet(UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserSubscriptionsViewSet(mixins.ListModelMixin,
-                               viewsets.GenericViewSet):
-    """Получение списка всех подписок на пользователей."""
+class UserSubscriptionsViewSet(
+    mixins.ListModelMixin, viewsets.GenericViewSet
+):
     serializer_class = UserGetSubscribeSerializer
 
     def get_queryset(self):

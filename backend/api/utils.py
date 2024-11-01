@@ -17,6 +17,12 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+def check_request(request, obj, model):
+    return (
+        request and request.user.is_authenticated
+        and model.objects.filter(user=request.user, recipe=obj).exists())
+
+
 def post_method(request, instance, serializer_class):
     serializer = serializer_class(
         data={'user': request.user.id, 'recipe': instance.id, },

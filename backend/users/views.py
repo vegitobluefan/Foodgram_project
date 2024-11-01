@@ -79,4 +79,4 @@ class UserSubscriptionsViewSet(mixins.ListModelMixin,
     serializer_class = UserGetSubscribeSerializer
 
     def get_queryset(self):
-        return MyUser.objects.filter(subscriber__user=self.request.user)
+        return MyUser.objects.filter(author__user=self.request.user)

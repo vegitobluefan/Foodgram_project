@@ -85,23 +85,6 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name',)
 
-    def validate(self, data):
-        author_id = self.context.get(
-            'request').parser_context.get('kwargs').get('id')
-        author = get_object_or_404(MyUser, id=author_id)
-        user = self.context.get('request').user
-        if user.follower.filter(author=author_id).exists():
-            raise ValidationError(
-                detail='Подписка уже существует',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        if user == author:
-            raise ValidationError(
-                detail='Нельзя подписаться на самого себя',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        return data
-
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:

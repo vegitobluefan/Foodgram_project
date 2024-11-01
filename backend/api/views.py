@@ -9,6 +9,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .paginators import CustomHomePagination
+from .filters import RecipeFilter, IngredientFilter
 from .permissions import IsAuthenticatedAndAdminOrAuthorOrReadOnly
 from .serializers import (CreateUpdateRecipeSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
@@ -23,6 +24,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
     pagination_class = None
 
@@ -42,6 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
+    filterset_class = RecipeFilter
     pagination_class = CustomHomePagination
 
     def get_serializer_class(self):
@@ -51,8 +54,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True, methods=('post', 'delete',),
-        permission_classes=(IsAuthenticated,),
-    )
+        permission_classes=(IsAuthenticated,),)
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
@@ -63,8 +65,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
-        detail=True, methods=('post',), permission_classes=(IsAuthenticated,),
-    )
+        detail=False,
+        permission_classes=(IsAuthenticated,))
+    def download_shopping_cart(self, request):
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__cart_recipe__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_sum=Sum('amount'))
+        return download_cart(ingredients)
+
+    @action(
+        detail=True, methods=('post',), permission_classes=(IsAuthenticated,),)
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         serializer = FavoriteRecipeSerializer(
@@ -83,23 +97,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=False,
-        permission_classes=(IsAuthenticated,)
-    )
-    def download_shopping_cart(self, request):
-        ingredients = IngredientRecipe.objects.filter(
-            recipe__cart_recipe__user=request.user
-        ).values(
-            'ingredient__name', 'ingredient__measurement_unit'
-        ).order_by(
-            'ingredient__name'
-        ).annotate(ingredient_sum=Sum('amount'))
-        return download_cart(ingredients)
-
-    @action(
         methods=('get',), detail=True,
-        url_path='get-link',
-        url_name='get-link',
-    )
+        url_path='get-link', url_name='get-link',)
     def get_link(self, request, pk=None):
         pass

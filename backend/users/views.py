@@ -31,32 +31,14 @@ class MyUserViewSet(UserViewSet):
         return serializer
 
     @action(
-        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),
-    )
+        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),)
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(
-        detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
-    )
-    def avatar(self, request, id=None):
-        serializer = self.change_avatar(request.data)
-        return Response(serializer.data)
-
-    @avatar.mapping.delete
-    def delete_avatar(self, request, id=None):
-        data = request.data
-        if 'avatar' not in data:
-            data = {'avatar': None}
-        self.change_avatar(data)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(
-        detail=True,
-        methods=('post', 'delete'),
-        permission_classes=(IsAuthenticated,),
-    )
+        detail=True, methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,),)
     def subscribe(self, request, id=None):
         subscriber = self.request.user
         author = get_object_or_404(MyUser, pk=id)
@@ -75,8 +57,21 @@ class MyUserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),
-    )
+    @action(detail=False, permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
         pass
+
+    @action(
+        detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
+    )
+    def avatar(self, request, id=None):
+        serializer = self.change_avatar(request.data)
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request, id=None):
+        data = request.data
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        self.change_avatar(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)

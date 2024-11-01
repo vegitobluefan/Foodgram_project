@@ -1,11 +1,9 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer
+from rest_framework import serializers
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
-from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from users.models import MyUser, SubscriptionUser, models
 

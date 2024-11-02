@@ -3,12 +3,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-sp6#67oxz(-s))uqd3@6b6c4)5swk30u+j)t2n549h!^0p!1ni'
+SECRET_KEY = os.getenv('SECRET_KEY', default='token')
 
-DEBUG = True
+DEBUG = (os.getenv('DEBUG', default='False') == 'True')
 
 ALLOWED_HOSTS = [
-    'foodgramdaniyar52.ddnsking.com', '130.193.54.110',
+    os.getenv('HOST_NAME'), os.getenv('HOST_IP'),
     'localhost', '127.0.0.1',
 ]
 
@@ -147,4 +147,4 @@ MAX_TEXT_LEN = 512
 MIN_VALUE_VALIDATOR = 1
 MAX_VALUE_VALIDATOR = 10000
 
-RECIPE_LINK = 'https://foodgramdaniyar52.ddnsking.com/recipes'
+RECIPE_LINK = f'https://{os.getenv('HOST_NAME')}/recipes'

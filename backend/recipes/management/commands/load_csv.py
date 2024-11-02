@@ -5,6 +5,9 @@ from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('--path', type=str)
+
     def handle(self, *args, **options):
         with open(
             options['path'], 'rt', encoding='utf-8'

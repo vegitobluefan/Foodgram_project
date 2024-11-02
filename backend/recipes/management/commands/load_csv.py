@@ -7,12 +7,10 @@ from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-        parser.add_argument('--path', type=str)
 
     def handle(self, *args, **options):
         with open(
-            os.path.join(BASE_DIR, 'data', 'ingredients.csv'), encoding='utf-8'
+            os.path.join(BASE_DIR, 'data/ingredients.csv'), encoding='utf-8'
         ) as file:
             reader = csv.reader(file, delimiter=',')
             ingredients_to_create = []

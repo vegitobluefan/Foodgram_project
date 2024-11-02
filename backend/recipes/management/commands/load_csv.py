@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(
-            os.path.join(BASE_DIR, 'data/ingredients.csv'), encoding='utf-8'
+            '/home/yc-user/foodgram/data/', encoding='utf-8'
         ) as file:
             reader = csv.reader(file, delimiter=',')
             ingredients_to_create = []

@@ -132,7 +132,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-CSV_PATH = BASE_DIR / 'data'
+CSV_PATH = '/home/yc-user/foodgram'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

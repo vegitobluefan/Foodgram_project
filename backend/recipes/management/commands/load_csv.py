@@ -1,21 +1,21 @@
 import csv
-import os
 
 from django.core.management.base import BaseCommand
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         with open(
-            '/foodgram/data/ingredients.csv', encoding='utf-8'
-        ) as file:
-            reader = csv.reader(file, delimiter=',')
-            ingredients_to_create = []
+            'data/ingredients.csv', 'r', encoding='utf-8'
+        ) as f:
+            reader = csv.reader(f, delimiter=',')
+            ingredients = []
             for row in reader:
-                name, unit = row
+                name, measurement_unit = row
                 if name:
-                    ingredient = Ingredient(name=name, measurement_unit=unit)
-                    ingredients_to_create.append(ingredient)
-            Ingredient.objects.bulk_create(ingredients_to_create)
+                    ingredient = Ingredient(
+                        name=name, measurement_unit=measurement_unit
+                    )
+                    ingredients.append(ingredient)
+            Ingredient.objects.bulk_create(ingredients)

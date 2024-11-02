@@ -1,13 +1,14 @@
 import csv
 
 from django.core.management.base import BaseCommand
+from foodgram.settings import CSV_PATH
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         with open(
-            'C:\\Dev\\FoodgramProject\\foodgram\\data\\ingredients.csv',
+            f'{CSV_PATH}\\ingredients.csv', 'r',
             encoding="utf-8"
         ) as file:
             reader = csv.reader(file, delimiter=',')

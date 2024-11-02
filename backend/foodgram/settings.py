@@ -132,6 +132,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CSV_PATH = BASE_DIR / 'data'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'recipes.MyUser'
@@ -147,4 +149,4 @@ MAX_TEXT_LEN = 512
 MIN_VALUE_VALIDATOR = 1
 MAX_VALUE_VALIDATOR = 10000
 
-RECIPE_LINK = 'http://localhost/recipes'
+RECIPE_LINK = 'https://foodgramdaniyar52.ddnsking.com/recipes'

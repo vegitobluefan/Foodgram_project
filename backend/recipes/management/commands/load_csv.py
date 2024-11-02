@@ -1,15 +1,13 @@
 import csv
 
 from django.core.management.base import BaseCommand
-from foodgram.settings import BASE_DIR
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         with open(
-            BASE_DIR / 'data/ingredients.csv', 'r',
-            encoding="utf-8"
+            options['path'], 'rt', encoding='utf-8'
         ) as file:
             reader = csv.reader(file, delimiter=',')
             ingredients_to_create = []

@@ -4,6 +4,8 @@ from rest_framework.filters import SearchFilter
 
 
 class IngredientFilter(SearchFilter):
+    """Фильтрация ингредиентов по названию при поиске."""
+
     search_param = 'name'
 
     class Meta:
@@ -12,6 +14,8 @@ class IngredientFilter(SearchFilter):
 
 
 class RecipeFilter(FilterSet):
+    """Фильтрация рецептов по наличию в корзине и избранном."""
+
     tags = filters.ModelMultipleChoiceFilter(
         queryset=Tag.objects.all(),
         field_name='tags__slug',
@@ -21,7 +25,7 @@ class RecipeFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart',)
+        fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart',)
 
     def filter_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:

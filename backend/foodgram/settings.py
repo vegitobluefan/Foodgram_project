@@ -147,4 +147,5 @@ MAX_TEXT_LEN = 512
 MIN_VALUE_VALIDATOR = 1
 MAX_VALUE_VALIDATOR = 10000
 
-RECIPE_LINK = f'https://{os.getenv('HOST_NAME')}/recipes'
+Host = os.getenv('HOST_NAME')
+RECIPE_LINK = f'https://{Host}/recipes'

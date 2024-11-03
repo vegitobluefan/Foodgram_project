@@ -234,23 +234,27 @@ class TagRecipe(models.Model):
         return f'{self.tag} - тег для {self.recipe}.'
 
 
-class FavoriteRecipe(models.Model):
-    """Модель для добавления рецептов в избранное."""
+class ShoppingCartFavoriteBasemodel(models.Model):
+    """Базовая модель для корзины и избранного."""
 
     user = models.ForeignKey(
         MyUser,
         on_delete=models.CASCADE,
-        related_name='favorite_recipe',
-        verbose_name='Пользователь',
-    )
+        verbose_name='Пользователь',)
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite_recipe',
-        verbose_name='Рецепт в избранное',
-    )
+        verbose_name='Рецепт',)
 
     class Meta:
+        abstract = True
+
+
+class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
+    """Модель для добавления рецептов в избранное."""
+
+    class Meta:
+        default_related_name = 'favorite_recipe'
         verbose_name = 'Рецепт в избранном'
         verbose_name_plural = 'рецепты в избранном'
 
@@ -258,23 +262,11 @@ class FavoriteRecipe(models.Model):
         return f'{self.user} добавил {self.recipe} в избранное.'
 
 
-class ShoppingCart(models.Model):
+class ShoppingCart(ShoppingCartFavoriteBasemodel):
     """Модель для добавления рецептов в корзину."""
 
-    user = models.ForeignKey(
-        MyUser,
-        on_delete=models.CASCADE,
-        related_name='cart_recipe',
-        verbose_name='Пользователь',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='cart_recipe',
-        verbose_name='Рецепт в корзину',
-    )
-
     class Meta:
+        default_related_name = 'cart_recipe'
         verbose_name = 'Рецепт в списке покупок'
         verbose_name_plural = 'рецепты в списке покупок'
 

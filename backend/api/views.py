@@ -18,7 +18,8 @@ from .serializers import (AvatarSerializer, CreateUpdateRecipeSerializer,
                           ReadOnlyRecipeSerializer, ShoppingCartSerializer,
                           TagSerializer, UserGetSubscribeSerializer,
                           UserSerializer)
-from .utils import delete_method, download_cart, post_method
+from .utils import (download_cart, remove_from_shopping_cart_or_favorites,
+                    to_shopping_cart_or_favorite)
 
 
 class UserViewSet(UserViewSet):
@@ -127,10 +128,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            return post_method(request, recipe, ShoppingCartSerializer)
+            return to_shopping_cart_or_favorite(
+                request, recipe, ShoppingCartSerializer)
 
         if request.method == 'DELETE':
-            return delete_method(request, recipe, ShoppingCart)
+            return remove_from_shopping_cart_or_favorites(
+                request, recipe, ShoppingCart)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
@@ -147,23 +150,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return download_cart(ingredients)
 
     @action(
-        detail=True, methods=('post',), permission_classes=(IsAuthenticated,),)
+        detail=True, methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,),)
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = FavoriteRecipeSerializer(
-            data={'user': request.user.id, 'recipe': recipe.id},
-            context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'POST':
+            return to_shopping_cart_or_favorite(
+                request, recipe, FavoriteRecipeSerializer)
 
-    @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
-        get_object_or_404(
-            FavoriteRecipe, user=request.user,
-            recipe=get_object_or_404(Recipe, id=pk)
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.method == 'DELETE':
+            return remove_from_shopping_cart_or_favorites(
+                request, recipe, FavoriteRecipe)
 
     @action(
         methods=('get',), detail=True,

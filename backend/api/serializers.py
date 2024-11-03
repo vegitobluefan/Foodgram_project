@@ -7,8 +7,7 @@ from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
-
-from .utils import Base64ImageField, check_request
+from drf_extra_fields.fields import Base64ImageField
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -217,11 +216,17 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        return check_request(request, obj, FavoriteRecipe)
+        return (
+            request and request.user.is_authenticated
+            and FavoriteRecipe.objects.filter(
+                user=request.user, recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        return check_request(request, obj, ShoppingCart)
+        return (
+            request and request.user.is_authenticated
+            and ShoppingCart.objects.filter(
+                user=request.user, recipe=obj).exists())
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):

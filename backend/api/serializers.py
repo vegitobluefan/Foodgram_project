@@ -51,24 +51,24 @@ class UserSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class MyUserCreateSerializer(UserCreateSerializer):
-    """Сериализатор для создания пользователя."""
+# class MyUserCreateSerializer(UserCreateSerializer):
+    # """Сериализатор для создания пользователя."""
 
-    username = models.CharField(
-        validators=[
-            UniqueValidator(
-                queryset=MyUser.objects.all(),
-                message='Пользователь с таким никнеймом уже существует!')])
-    email = models.EmailField(
-        validators=[
-            UniqueValidator(
-                queryset=MyUser.objects.all(),
-                message='Пользователь с такой почтой уже существует!')])
+    # username = models.CharField(
+        # validators=[
+            # UniqueValidator(
+                # queryset=MyUser.objects.all(),
+                # message='Пользователь с таким никнеймом уже существует!')])
+    # email = models.EmailField(
+        # validators=[
+            # UniqueValidator(
+                # queryset=MyUser.objects.all(),
+                # message='Пользователь с такой почтой уже существует!')])
 
-    class Meta:
-        model = MyUser
-        fields = (
-            'id', 'email', 'username', 'first_name', 'last_name', 'password',)
+    # class Meta:
+        # model = MyUser
+        # fields = (
+            # 'id', 'email', 'username', 'first_name', 'last_name', 'password',)
 
 
 class UserGetSubscribeSerializer(serializers.ModelSerializer):

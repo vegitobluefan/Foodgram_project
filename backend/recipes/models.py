@@ -38,9 +38,8 @@ class MyUser(AbstractUser):
         help_text='Добавьте ваш аватар',
         blank=True,
     )
-    USERNAME_FIELD = 'username'
-    # EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta(AbstractUser.Meta):
         ordering = ('username',)

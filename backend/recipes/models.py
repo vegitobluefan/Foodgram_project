@@ -68,8 +68,8 @@ class SubscriptionUser(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=['author', 'user'],
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('user')),
                 name='unique_subscription'
             )]
         verbose_name = 'Подписка'
@@ -118,6 +118,10 @@ class Ingredient(models.Model):
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'ингридиенты'
         ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredients')]
 
     def __str__(self) -> str:
         return self.name
@@ -180,14 +184,14 @@ class IngredientRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipeingredient',
+        # related_name='recipeingredient',
         verbose_name='Ингредиент',
         help_text='Укажите ингредиент'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipeingredient',
+        related_name='ingredients',
         verbose_name='Рецепт',
     )
     amount = models.PositiveSmallIntegerField(
@@ -256,6 +260,9 @@ class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
         default_related_name = 'favorite_recipe'
         verbose_name = 'Рецепт в избранном'
         verbose_name_plural = 'рецепты в избранном'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique_favorite_recipe')]
 
     def __str__(self) -> str:
         return f'{self.user} добавил {self.recipe} в избранное.'

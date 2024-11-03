@@ -180,7 +180,6 @@ class ReadOnlyRecipeSerializer(serializers.ModelSerializer):
     )
     ingredients = IngredientRecipeSerializer(
         many=True,
-        source='recipeingredient',
         read_only=True,
     )
     is_favorited = serializers.SerializerMethodField()
@@ -214,7 +213,6 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(
         many=True,
-        source='recipeingredient',
     )
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all(),
@@ -247,7 +245,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('recipeingredient')
+        ingredients = validated_data.pop('ingredients')
         with transaction.atomic():
             recipe = Recipe.objects.create(
                 author=self.context['request'].user, **validated_data
@@ -256,7 +254,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             return recipe
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('recipeingredient')
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.tags.clear()
         instance.tags.set(tags)

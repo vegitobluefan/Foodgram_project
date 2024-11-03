@@ -21,7 +21,7 @@ from .serializers import (AvatarSerializer, CreateUpdateRecipeSerializer,
 from .utils import delete_method, download_cart, post_method
 
 
-class MyUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     """Вьюсет для модели User."""
 
     serializer_class = UserSerializer
@@ -39,12 +39,6 @@ class MyUserViewSet(UserViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return serializer
-
-    @action(
-        detail=False, methods=('get'), permission_classes=(IsAuthenticated,),)
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
 
     @action(
         detail=True, methods=('post', 'delete'),

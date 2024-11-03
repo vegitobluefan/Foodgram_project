@@ -85,7 +85,7 @@ class UserSubscriptionsViewSet(
     serializer_class = UserGetSubscribeSerializer
 
     def get_queryset(self):
-        return MyUser.objects.filter(author__user=self.request.user)
+        return MyUser.objects.filter(subscribed_to__user=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

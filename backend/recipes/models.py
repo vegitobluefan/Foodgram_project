@@ -56,7 +56,7 @@ class SubscriptionUser(models.Model):
     author = models.ForeignKey(
         MyUser,
         on_delete=models.CASCADE,
-        related_name='author',
+        related_name='subscribed_to',
         verbose_name='Автор',
     )
     user = models.ForeignKey(
@@ -149,12 +149,6 @@ class Recipe(models.Model):
         max_length=MAX_TEXT_LEN,
         verbose_name='Описание',
     )
-    ingredient = models.ManyToManyField(
-        Ingredient,
-        through='IngredientRecipe',
-        related_name='recipes',
-        verbose_name='Ингредиенты блюда',
-    )
     tags = models.ManyToManyField(
         Tag,
         through='TagRecipe',
@@ -184,7 +178,6 @@ class IngredientRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        # related_name='recipeingredient',
         verbose_name='Ингредиент',
         help_text='Укажите ингредиент'
     )

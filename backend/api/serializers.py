@@ -1,6 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
-from djoser.serializers import UserCreateSerializer
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             MyUser, Recipe, ShoppingCart, SubscriptionUser,
                             Tag, models)

@@ -1,12 +1,12 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
+from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             MyUser, Recipe, ShoppingCart, SubscriptionUser,
-                            Tag, models)
+                            Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
-from drf_extra_fields.fields import Base64ImageField
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -48,26 +48,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user.is_authenticated and SubscriptionUser.objects.filter(
             user=user, author=obj
         ).exists()
-
-
-# class MyUserCreateSerializer(UserCreateSerializer):
-    # """Сериализатор для создания пользователя."""
-
-    # username = models.CharField(
-        # validators=[
-            # UniqueValidator(
-                # queryset=MyUser.objects.all(),
-                # message='Пользователь с таким никнеймом уже существует!')])
-    # email = models.EmailField(
-        # validators=[
-            # UniqueValidator(
-                # queryset=MyUser.objects.all(),
-                # message='Пользователь с такой почтой уже существует!')])
-
-    # class Meta:
-        # model = MyUser
-        # fields = (
-            # 'id', 'email', 'username', 'first_name', 'last_name', 'password',)
 
 
 class UserGetSubscribeSerializer(serializers.ModelSerializer):

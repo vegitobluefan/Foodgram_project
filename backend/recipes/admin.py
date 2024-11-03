@@ -17,7 +17,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'recipe_favorite',)
 
     @admin.display(
-            description=format_html('<strong>Рецепт в избранных</strong>'))
+        description=format_html('<strong>Рецепт в избранных</strong>'))
     def recipe_favorite(self, Recipe):
         return Recipe.favorite_recipe.count()
 # Данные от админки:

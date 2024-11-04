@@ -6,8 +6,7 @@ from rest_framework.validators import UniqueValidator
 
 from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            User, Recipe, ShoppingCart, SubscriptionUser,
-                            Tag)
+                            Recipe, ShoppingCart, SubscriptionUser, Tag, User)
 
 
 class AvatarSerializer(serializers.ModelSerializer):

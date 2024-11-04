@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import (FavoriteRecipe, Ingredient, User, Recipe, ShoppingCart,
-                     SubscriptionUser, Tag)
+from .models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
+                     SubscriptionUser, Tag, User)
 
 admin.site.register(User)
 admin.site.register(SubscriptionUser)

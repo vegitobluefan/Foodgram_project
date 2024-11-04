@@ -1,12 +1,13 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+
 from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             MyUser, Recipe, ShoppingCart, SubscriptionUser,
                             Tag)
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
 
 class AvatarSerializer(serializers.ModelSerializer):

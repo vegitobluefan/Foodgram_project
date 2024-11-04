@@ -68,9 +68,13 @@ class SubscriptionUser(models.Model):
 
     class Meta:
         constraints = [
+            models.UniqueConstraint(
+                fields=('author', 'user'),
+                name='unique_subscription'
+            ),
             models.CheckConstraint(
                 check=~models.Q(author=models.F('user')),
-                name='unique_subscription'
+                name='self_subscription_constraint'
             )]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
@@ -244,6 +248,9 @@ class ShoppingCartFavoriteBasemodel(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'), name='unique_favorite_cart_recipe')]
 
 
 class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
@@ -253,9 +260,6 @@ class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
         default_related_name = 'favorite_recipe'
         verbose_name = 'Рецепт в избранном'
         verbose_name_plural = 'рецепты в избранном'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_favorite_recipe')]
 
     def __str__(self) -> str:
         return f'{self.user} добавил {self.recipe} в избранное.'

@@ -21,7 +21,8 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'recipe_favorite',)
-    search_fields = ('name', 'author',)
+    list_filter = ('name', 'author', 'tags',)
+    search_fields = ('name', 'author__username',)
 
     @admin.display(
         description=format_html('<strong>Рецепт в избранных</strong>'))

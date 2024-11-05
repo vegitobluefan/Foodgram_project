@@ -61,7 +61,9 @@ http://127.0.0.1/api/docs/
 
 # Запуск проекта в контейнерах
 - Перейти в директорию /infra и выполнить следующие команды:
-```docker-compose build```
+```
+docker-compose build
+```
 ```
 docker-compose up -d
 ```
@@ -69,5 +71,21 @@ docker-compose up -d
 docker-compose up
 ```
 - Применить миграции:
-``` docker compose exec backend python manage.py makemigrations ```
-``` docker compose exec backend python manage.py migrate ```
+```
+docker compose exec backend python manage.py makemigrations
+```
+```
+docker compose exec backend python manage.py migrate
+```
+- Собрать статику:
+```
+docker-compose exec python manage.py collectstatic --no-input 
+```
+- Загрузить ингредиенты:
+```
+docker-compose exec backend python manage.py load_csv
+```
+- Создать суперпользователя:
+```
+docker-compose exec web python manage.py createsuperuser
+```

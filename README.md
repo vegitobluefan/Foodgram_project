@@ -4,9 +4,10 @@
 ## Сайт расположен по адресу: https://foodgramdaniyar52.ddnsking.com
 
 ### Данные от админки:
-- Логин: 
+https://foodgramdaniyar52.ddnsking.com/admin/
+- Почта: 
 ```bash 
-FoodgramAdmin
+foodgramadmin@gmail.com
 ```
 - Пароль:
 ``` bash 
@@ -29,4 +30,27 @@ foodgram1701
 - Страница смены пароля,
 - Статические страницы «О проекте» и «Технологии».
 
-# Запуск проекта на удалённом сервере:
+# Запуск API:
+- Склонируйте репозиторий:
+```bash 
+git clone ...
+```    
+- Установите и активируйте виртуальное окружение:
+```bash
+python -m venv venv 
+```  
+``` bash 
+source venv/Scripts/activate 
+``` 
+- Установите зависимости из файла requirements.txt:
+``` bash 
+pip install -r requirements.txt 
+```
+- Примените миграции:
+``` bash
+python manage.py migrate
+```
+- Запустите проект:
+```bash
+python manage.py runserver
+```

@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib.auth.models import Group
+from rest_framework.authtoken.models import TokenProxy
 
 from .models import (FavoriteRecipe, Ingredient, MyUser, Recipe, ShoppingCart,
                      SubscriptionUser, Tag)
@@ -8,6 +10,7 @@ admin.site.register(SubscriptionUser)
 admin.site.register(FavoriteRecipe)
 admin.site.register(ShoppingCart)
 admin.site.register(Tag)
+admin.site.unregister([Group, TokenProxy])
 
 
 @admin.register(MyUser)

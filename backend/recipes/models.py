@@ -7,7 +7,7 @@ from foodgram.settings import (INGREDIENT_NAME_LEN, MAX_EMAIL_LEN,
                                MEASURMENT_UNIT_LEN)
 
 
-class User(AbstractUser):
+class MyUser(AbstractUser):
     """Модель для описания пользователя."""
 
     email = models.EmailField(
@@ -55,13 +55,13 @@ class SubscriptionUser(models.Model):
     """Модель подписки пользователей."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='subscribed_to',
         verbose_name='Автор',
     )
     user = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
         verbose_name='Подписчик',
@@ -136,7 +136,7 @@ class Recipe(models.Model):
     """Модель для описания рецептов."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
     )
@@ -156,6 +156,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        through='TagRecipe',
         related_name='recipes',
         verbose_name='Теги блюда',
     )
@@ -209,11 +210,27 @@ class IngredientRecipe(models.Model):
         return f'{self.ingredient} ингредиент в {self.recipe}.'
 
 
+class TagRecipe(models.Model):
+    """Модель для связи тегов и рецептов."""
+
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='tagrecipe',
+        verbose_name='Тег',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='tagrecipe',
+    )
+
+
 class ShoppingCartFavoriteBasemodel(models.Model):
     """Базовая модель для корзины и избранного."""
 
     user = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',)
     recipe = models.ForeignKey(
@@ -231,7 +248,7 @@ class ShoppingCartFavoriteBasemodel(models.Model):
 class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
     """Модель для добавления рецептов в избранное."""
 
-    class Meta:
+    class Meta(ShoppingCartFavoriteBasemodel.Meta):
         default_related_name = 'favorite_recipe'
         verbose_name = 'Рецепт в избранном'
         verbose_name_plural = 'рецепты в избранном'
@@ -243,7 +260,7 @@ class FavoriteRecipe(ShoppingCartFavoriteBasemodel):
 class ShoppingCart(ShoppingCartFavoriteBasemodel):
     """Модель для добавления рецептов в корзину."""
 
-    class Meta:
+    class Meta(ShoppingCartFavoriteBasemodel.Meta):
         default_related_name = 'cart_recipe'
         verbose_name = 'Рецепт в списке покупок'
         verbose_name_plural = 'рецепты в списке покупок'

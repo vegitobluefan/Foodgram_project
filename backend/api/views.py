@@ -9,7 +9,8 @@ from rest_framework.response import Response
 
 from foodgram.settings import RECIPE_LINK
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            Recipe, ShoppingCart, SubscriptionUser, Tag, User)
+                            MyUser, Recipe, ShoppingCart, SubscriptionUser,
+                            Tag)
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomHomePagination
@@ -26,7 +27,7 @@ class UserViewSet(UserViewSet):
     """Вьюсет для модели User."""
 
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = MyUser.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_context_data(self):
@@ -46,7 +47,7 @@ class UserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),)
     def subscribe(self, request, id=None):
         subscriber = self.request.user
-        author = get_object_or_404(User, pk=id)
+        author = get_object_or_404(MyUser, pk=id)
 
         if request.method == 'POST':
             serializer = UserGetSubscribeSerializer(
@@ -66,7 +67,7 @@ class UserViewSet(UserViewSet):
             methods=('get'))
     def subscriptions(self, request):
         authors = self.paginate_queryset(
-            User.objects.filter(subscribed_to__user=request.user)
+            MyUser.objects.filter(subscribed_to__user=request.user)
         )
         serializer = UserGetSubscribeSerializer(
             authors, many=True, context={'request': request})

@@ -61,12 +61,13 @@ http://127.0.0.1/api/docs/
 
 # Запуск проекта в контейнерах
 - Перейти в директорию /infra и выполнить следующие команды:
-```
-docker-compose build
-```
+```docker-compose build```
 ```
 docker-compose up -d
 ```
 ```
 docker-compose up
 ```
+- Применить миграции:
+``` docker compose exec backend python manage.py makemigrations ```
+``` docker compose exec backend python manage.py migrate ```

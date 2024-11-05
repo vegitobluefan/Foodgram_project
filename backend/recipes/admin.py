@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import TokenProxy
 
-from .models import (FavoriteRecipe, Ingredient, MyUser, Recipe, ShoppingCart,
+from .models import (FavoriteRecipe, Ingredient, User, Recipe, ShoppingCart,
                      SubscriptionUser, Tag)
 
 admin.site.register(SubscriptionUser)
@@ -13,7 +13,7 @@ admin.site.register(Tag)
 admin.site.unregister([Group, TokenProxy])
 
 
-@admin.register(MyUser)
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     search_fields = ('email', 'username')
 

@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import mixins, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from foodgram.settings import RECIPE_LINK
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            MyUser, Recipe, ShoppingCart, SubscriptionUser,
+                            User, Recipe, ShoppingCart, SubscriptionUser,
                             Tag)
 
 from .filters import IngredientFilter, RecipeFilter
@@ -27,7 +27,7 @@ class UserViewSet(UserViewSet):
     """Вьюсет для модели User."""
 
     serializer_class = UserSerializer
-    queryset = MyUser.objects.all()
+    queryset = User.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_context_data(self):
@@ -47,7 +47,7 @@ class UserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),)
     def subscribe(self, request, id=None):
         subscriber = self.request.user
-        author = get_object_or_404(MyUser, pk=id)
+        author = get_object_or_404(User, pk=id)
 
         if request.method == 'POST':
             serializer = UserGetSubscribeSerializer(
@@ -63,6 +63,16 @@ class UserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, permission_classes=(IsAuthenticated,),
+            methods=('get'))
+    def subscriptions(self, request):
+        authors = self.paginate_queryset(
+            User.objects.filter(subscribed_to__user=request.user)
+        )
+        serializer = UserGetSubscribeSerializer(
+            authors, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
     @action(
         detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
     )
@@ -77,16 +87,6 @@ class UserViewSet(UserViewSet):
             data = {'avatar': None}
         self.change_avatar(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserSubscriptionsViewSet(
-    mixins.ListModelMixin, viewsets.GenericViewSet
-):
-    """Viewset для отображения подписок пользователя."""
-    serializer_class = UserGetSubscribeSerializer
-
-    def get_queryset(self):
-        return MyUser.objects.filter(subscribed_to__user=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

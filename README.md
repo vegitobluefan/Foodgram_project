@@ -54,3 +54,7 @@ python manage.py migrate
 ```bash
 python manage.py runserver
 ```
+### Документация доступна по адресу
+```
+http://127.0.0.1/api/docs/
+```

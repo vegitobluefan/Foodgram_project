@@ -1,6 +1,4 @@
 # Итоговый проект курса Foodgram
-
-# Разработчик: [Аринов Данияр](https://github.com/vegitobluefan)
 ## Сайт расположен по адресу: https://foodgramdaniyar52.ddnsking.com
 
 ### Данные от админки:
@@ -89,3 +87,4 @@ docker-compose exec backend python manage.py load_csv
 ```
 docker-compose exec web python manage.py createsuperuser
 ```
+# Разработчик: [Аринов Данияр](https://github.com/vegitobluefan)

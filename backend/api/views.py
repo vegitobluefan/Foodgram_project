@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -63,16 +63,6 @@ class UserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, permission_classes=(IsAuthenticated,),
-            methods=('get'))
-    def subscriptions(self, request):
-        authors = self.paginate_queryset(
-            MyUser.objects.filter(subscribed_to__user=request.user)
-        )
-        serializer = UserGetSubscribeSerializer(
-            authors, many=True, context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
     @action(
         detail=True, methods=('put',), permission_classes=(IsAuthenticated,),
     )
@@ -87,6 +77,16 @@ class UserViewSet(UserViewSet):
             data = {'avatar': None}
         self.change_avatar(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSubscriptionsViewSet(
+    mixins.ListModelMixin, viewsets.GenericViewSet
+):
+    """Viewset для отображения подписок пользователя."""
+    serializer_class = UserGetSubscribeSerializer
+
+    def get_queryset(self):
+        return MyUser.objects.filter(subscribed_to__user=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

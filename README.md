@@ -5,7 +5,7 @@
 https://foodgramdaniyar52.ddnsking.com/admin/
 - Почта: 
 ```bash 
-foodgramadmin@gmail.com
+daniararinov995@gmail.com
 ```
 - Пароль:
 ``` bash 

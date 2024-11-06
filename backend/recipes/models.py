@@ -209,6 +209,20 @@ class IngredientRecipe(models.Model):
         return f'{self.ingredient} ингредиент в {self.recipe}.'
 
 
+class TagRecipe(models.Model):
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='tagrecipe',
+        verbose_name='Тег',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='tagrecipe',
+    )
+
+
 class ShoppingCartFavoriteBasemodel(models.Model):
     """Базовая модель для корзины и избранного."""
 

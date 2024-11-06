@@ -211,14 +211,10 @@ class TagRecipe(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        related_name='tagrecipe',
-        verbose_name='Тег',
-    )
+        verbose_name='Тег',)
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
-        related_name='tagrecipe',
-    )
+        on_delete=models.CASCADE,)
 
 
 class ShoppingCartFavoriteBasemodel(models.Model):

@@ -3,6 +3,8 @@ from django.contrib.auth.models import Group
 from django.utils.html import format_html
 from rest_framework.authtoken.models import TokenProxy
 
+from foodgram.settings import ONE_NUM, ZERO_NUM
+
 from .models import (FavoriteRecipe, Ingredient, IngredientRecipe, Recipe,
                      ShoppingCart, SubscriptionUser, Tag, TagRecipe, User)
 
@@ -24,14 +26,17 @@ class IngredientAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class RecipeIngredientInline(admin.TabularInline):
+class RecipeTagIngredientAdmin(admin.TabularInline):
+    min_num = ONE_NUM
+    extra = ZERO_NUM
+
+
+class RecipeIngredientInline(RecipeTagIngredientAdmin):
     model = IngredientRecipe
-    extra = 1
 
 
 class RecipeTagInline(admin.TabularInline):
     model = TagRecipe
-    extra = 1
 
 
 @admin.register(Recipe)

@@ -37,7 +37,6 @@ class User(AbstractUser):
         verbose_name='Аватар',
         upload_to='avatars',
         help_text='Добавьте ваш аватар',
-        blank=True,
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -148,7 +147,6 @@ class Recipe(models.Model):
         verbose_name='Изображение',
         upload_to='recipe_images/',
         help_text='Добавьте изображение блюда',
-        blank=True
     )
     text = models.TextField(
         max_length=MAX_TEXT_LEN,

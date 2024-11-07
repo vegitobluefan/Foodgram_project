@@ -168,7 +168,7 @@ class Recipe(models.Model):
             ),
             MaxValueValidator(
                 MAX_VALUE_VALIDATOR,
-                f'{MAX_VALUE_VALIDATOR} - максимальное значение.',),]
+                f'{MAX_VALUE_VALIDATOR} - максимальное значение.',), ]
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -205,7 +205,7 @@ class IngredientRecipe(models.Model):
         validators=[
             MinValueValidator(
                 MIN_VALUE_VALIDATOR,
-                f'{MIN_VALUE_VALIDATOR} - минимальное значение.',),]
+                f'{MIN_VALUE_VALIDATOR} - минимальное значение.',), ]
     )
 
     class Meta:

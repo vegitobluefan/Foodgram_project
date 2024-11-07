@@ -1,10 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from foodgram.settings import (INGREDIENT_NAME_LEN, MAX_EMAIL_LEN,
                                MAX_NAME_LEN, MAX_TAG_LEN, MAX_TEXT_LEN,
-                               MEASURMENT_UNIT_LEN)
+                               MAX_VALUE_VALIDATOR, MEASURMENT_UNIT_LEN,
+                               MIN_VALUE_VALIDATOR)
 
 
 class User(AbstractUser):
@@ -159,6 +161,14 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
+        validators=[
+            MinValueValidator(
+                MIN_VALUE_VALIDATOR,
+                f'{MIN_VALUE_VALIDATOR} - минимальное значение.',
+            ),
+            MaxValueValidator(
+                MAX_VALUE_VALIDATOR,
+                f'{MAX_VALUE_VALIDATOR} - максимальное значение.',),]
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -192,6 +202,10 @@ class IngredientRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         help_text='Укажите количество',
+        validators=[
+            MinValueValidator(
+                MIN_VALUE_VALIDATOR,
+                f'{MIN_VALUE_VALIDATOR} - минимальное значение.',),]
     )
 
     class Meta:

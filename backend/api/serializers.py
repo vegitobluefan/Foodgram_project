@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueValidator
 
 from foodgram.settings import MAX_VALUE_VALIDATOR, MIN_VALUE_VALIDATOR
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
-                            User, Recipe, ShoppingCart, SubscriptionUser,
+                            MyUser, Recipe, ShoppingCart, SubscriptionUser,
                             Tag)
 
 
@@ -16,7 +16,7 @@ class AvatarSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
-        model = User
+        model = MyUser
         fields = ('avatar',)
 
 
@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = MyUser
         fields = (
             'id', 'email', 'username', 'avatar',
             'first_name', 'last_name', 'is_subscribed',
@@ -59,7 +59,7 @@ class UserGetSubscribeSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = MyUser
         fields = (
             'id', 'is_subscribed', 'recipes', 'recipes_count',
             'email', 'username', 'first_name', 'last_name',

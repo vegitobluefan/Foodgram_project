@@ -9,7 +9,7 @@ from foodgram.settings import (INGREDIENT_NAME_LEN, MAX_EMAIL_LEN,
                                MIN_VALUE_VALIDATOR)
 
 
-class User(AbstractUser):
+class MyUser(AbstractUser):
     """Модель для описания пользователя."""
 
     email = models.EmailField(
@@ -56,13 +56,13 @@ class SubscriptionUser(models.Model):
     """Модель подписки пользователей."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='subscribed_to',
         verbose_name='Автор',
     )
     user = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
         verbose_name='Подписчик',
@@ -137,7 +137,7 @@ class Recipe(models.Model):
     """Модель для описания рецептов."""
 
     author = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
     )
@@ -156,6 +156,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        through='TagRecipe',
         related_name='recipes',
         verbose_name='Теги блюда',
     )
@@ -222,6 +223,8 @@ class IngredientRecipe(models.Model):
 
 
 class TagRecipe(models.Model):
+    """Модель для поисания связи рецептов и тегов."""
+
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
@@ -230,12 +233,19 @@ class TagRecipe(models.Model):
         Recipe,
         on_delete=models.CASCADE,)
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'рецепты'
+
+    def __str__(self) -> str:
+        return f'{self.ingredient} тег в {self.recipe}.'
+
 
 class ShoppingCartFavoriteBasemodel(models.Model):
     """Базовая модель для корзины и избранного."""
 
     user = models.ForeignKey(
-        User,
+        MyUser,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',)
     recipe = models.ForeignKey(

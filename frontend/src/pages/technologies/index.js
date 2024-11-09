@@ -30,6 +30,15 @@ const Technologies = () => {
               <li className={styles.textItem}>
                 Djoser
               </li>
+              <li className={styles.textItem}>
+                Postgres 13.0
+              </li>
+              <li className={styles.textItem}>
+                Gunicorn 20.1.0
+              </li>
+              <li className={styles.textItem}>
+                Nginx 1.25.4
+              </li>
             </ul>
           </div>
         </div>

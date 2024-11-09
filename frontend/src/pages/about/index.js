@@ -43,6 +43,12 @@ const About = ({ updateOrders, orders }) => {
             <p className={styles.textItem}>
               Автор проекта: <a href="https://github.com/vegitobluefan" className={styles.textLink}>Аринов Данияр</a>
             </p>
+            <p className={styles.textItem}>
+              Связаться: <a href="https://t.me/darinovyo" className={styles.textLink}>Telegram</a>
+            </p>
+            <p className={styles.textItem}>
+              Электронная почта: <a className={styles.textItem}>daniararinov995@gmail.com</a>
+            </p>
           </div>
         </aside>
       </div>
